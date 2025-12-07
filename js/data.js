@@ -268,7 +268,7 @@ const DataManager = {
 
         const newView = JSON.parse(JSON.stringify(originalView));
         newView.id = this.generateId('view');
-        newView.name = originalView.name + ' (복사본)'; // 이름도 복사본 처리
+        newView.name = originalView.name + ' (복사본)'; 
         newView.parts = newView.parts.map(part => ({
             ...part,
             id: this.generateId('part')
@@ -320,7 +320,7 @@ const DataManager = {
         return newPart;
     },
 
-    // === 계산 (수정됨: 상세 항목 분리) ===
+    // === 계산 ===
     calculatePartPrice(part) {
         const material = this.getMaterial(part.materialId);
         const pricePerUnit = material ? material.pricePerUnit : 500;

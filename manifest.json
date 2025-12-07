@@ -1,6 +1,6 @@
 {
-    "name": "3D 프린팅 견적 계산기",
-    "short_name": "견적계산기",
+    "name": "GluckCalc",
+    "short_name": "GluckCalc",
     "description": "3D 프린팅 견적을 쉽고 빠르게 계산하세요",
     "start_url": "./index.html",
     "display": "standalone",

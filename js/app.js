@@ -120,10 +120,6 @@ const App = {
             e.preventDefault();
             this.saveQuoteName();
         });
-        document.getElementById('form-view-name').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveViewName();
-        });
     },
 
     // === 견적 관리 ===
@@ -184,36 +180,18 @@ const App = {
         Modal.close('modal-quote-name');
     },
 
-    // === 뷰 이름 수정 (신규) ===
-    editViewName(quoteId, viewId) {
+    // === 뷰 이름 인라인 수정 (신규) ===
+    updateViewName(quoteId, viewId, newName) {
         const quote = DataManager.getQuote(quoteId);
         if (!quote) return;
         const view = quote.views.find(v => v.id === viewId);
-        if (!view) return;
-
-        document.getElementById('view-name-quote-id').value = quoteId;
-        document.getElementById('view-name-view-id').value = viewId;
-        document.getElementById('view-name-input').value = view.name || '';
-        Modal.open('modal-view-name');
-    },
-
-    saveViewName() {
-        const quoteId = document.getElementById('view-name-quote-id').value;
-        const viewId = document.getElementById('view-name-view-id').value;
-        const name = document.getElementById('view-name-input').value.trim();
-        
-        if (!name) return;
-
-        const quote = DataManager.getQuote(quoteId);
-        if (quote) {
-            const view = quote.views.find(v => v.id === viewId);
-            if (view) {
-                view.name = name;
-                DataManager.saveQuote(quote);
-                this.renderCalculator();
-            }
+        if (view) {
+            view.name = newName;
+            DataManager.saveQuote(quote);
+            // 전체 렌더링 대신 필요한 부분만 업데이트할 수도 있지만, 안전하게 전체 렌더링
+            // 여기선 input에서 focus를 잃었을 때 호출되므로 다시 렌더링해도 됨
+            this.renderCalculator();
         }
-        Modal.close('modal-view-name');
     },
 
     // === 아이콘 피커 ===

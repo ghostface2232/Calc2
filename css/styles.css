@@ -393,21 +393,43 @@ body {
     align-items: center;
 }
 
+/* 뷰 이름 인라인 수정 스타일 */
+.view-name-wrapper {
+    display: flex;
+    align-items: center;
+    margin-left: 8px;
+}
+
+.view-name-input {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    width: auto;
+    min-width: 60px;
+    transition: var(--transition);
+}
+
+.view-name-input[readonly] {
+    cursor: default;
+    user-select: none;
+}
+
+.view-name-input:not([readonly]),
+.view-name-input:focus {
+    background: var(--bg-input);
+    border-color: var(--color-primary-light);
+    color: var(--color-text);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
 .calculator-title-actions {
     display: flex;
     gap: 4px;
-}
-
-/* 뷰 라벨 */
-.view-label {
-    display: inline-block;
-    padding: 4px 10px;
-    background: var(--bg-input);
-    border-radius: var(--radius-full);
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--color-text-secondary);
-    margin-left: 10px;
 }
 
 /* 고객사 선택 영역 */
@@ -513,6 +535,8 @@ body {
     border-radius: var(--radius-lg);
     padding: 18px;
     margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
 }
 
 .part-header {
@@ -523,7 +547,7 @@ body {
     gap: 8px;
 }
 
-/* 파트 이름 입력 필드 스타일 개선 */
+/* 파트 이름 입력 필드 스타일 */
 .part-name-wrapper {
     flex: 1;
     display: flex;
@@ -646,29 +670,12 @@ body {
     -webkit-appearance: none;
 }
 
-/* 가격 표시 (수정됨: 상세 항목 지원) */
-.part-price {
-    text-align: right;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--color-primary);
-    padding: 6px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.part-price-detail {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--color-text-secondary);
-}
-
 /* 옵션 버튼들 */
 .part-options {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    margin-bottom: 12px;
 }
 
 .btn-add-option {
@@ -702,7 +709,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 12px;
+    margin-bottom: 16px;
 }
 
 .option-item {
@@ -783,6 +790,36 @@ body {
 .option-remove:hover {
     background: var(--color-danger);
     color: white;
+}
+
+/* ===== 파트 푸터 (가격 표시, 신규) ===== */
+.part-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.part-price-breakdown {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.part-price-breakdown span {
+    display: inline-block;
+}
+
+.part-total-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-primary);
 }
 
 /* 파트 추가 버튼 */
