@@ -34,9 +34,9 @@ const Calculator = {
         const selectedClient = quote.clientId ? DataManager.getClient(quote.clientId) : null;
         const canRemove = quote.views.length > 1;
 
-        const viewLabel = quote.views.length > 1 
-            ? `<span style="margin-left:8px; font-weight:400; font-size:16px; color:var(--color-text-light);">| 뷰 ${viewIndex + 1}</span>` 
-            : '';
+        // 뷰 라벨: 타이틀 옆으로 이동, | 기호 추가
+        const viewName = view.name ? view.name : `뷰 ${viewIndex + 1}`;
+        const viewLabel = `<span style="margin-left:8px; font-weight:400; font-size:16px; color:var(--color-text-light);">| ${viewName}</span>`;
 
         return `
             <div class="calculator" data-quote-id="${quote.id}" data-view-id="${view.id}">
@@ -44,7 +44,7 @@ const Calculator = {
                     <div class="calculator-title">
                         <h2>${quote.name}${viewLabel}</h2>
                         <div class="calculator-title-actions">
-                            <button class="btn-icon" onclick="App.editQuoteName('${quote.id}')" title="이름 수정">
+                            <button class="btn-icon" onclick="App.editViewName('${quote.id}', '${view.id}')" title="뷰 이름 수정">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -220,7 +220,9 @@ const Calculator = {
                 </div>
                 
                 <div class="part-price">
-                    프린팅: ${DataManager.formatCurrency(partPrice.printing)}
+                    <div>프린팅: ${DataManager.formatCurrency(partPrice.printing)}</div>
+                    ${partPrice.postProcessing > 0 ? `<div class="part-price-detail">후가공: ${DataManager.formatCurrency(partPrice.postProcessing)}</div>` : ''}
+                    ${partPrice.mechanism > 0 ? `<div class="part-price-detail">옵션: ${DataManager.formatCurrency(partPrice.mechanism)}</div>` : ''}
                 </div>
                 
                 <div class="part-options">

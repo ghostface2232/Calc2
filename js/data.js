@@ -188,11 +188,11 @@ const DataManager = {
         const quote = {
             id: this.generateId('quote'),
             name: name,
-            icon: null, // 아이콘 (null이면 첫 글자)
+            icon: null,
             clientId: null,
             customClient: null,
             views: [
-                this.createView()
+                this.createView('뷰 1')
             ],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
@@ -203,9 +203,10 @@ const DataManager = {
         return quote;
     },
 
-    createView() {
+    createView(name = '뷰 1') {
         return {
             id: this.generateId('view'),
+            name: name,
             parts: []
         };
     },
@@ -267,6 +268,7 @@ const DataManager = {
 
         const newView = JSON.parse(JSON.stringify(originalView));
         newView.id = this.generateId('view');
+        newView.name = originalView.name + ' (복사본)'; // 이름도 복사본 처리
         newView.parts = newView.parts.map(part => ({
             ...part,
             id: this.generateId('part')
@@ -318,28 +320,36 @@ const DataManager = {
         return newPart;
     },
 
-    // === 계산 ===
+    // === 계산 (수정됨: 상세 항목 분리) ===
     calculatePartPrice(part) {
         const material = this.getMaterial(part.materialId);
         const pricePerUnit = material ? material.pricePerUnit : 500;
         const printingPrice = pricePerUnit * (part.volume || 0);
         
-        let optionsTotal = 0;
+        let postProcessing = 0;
+        let mechanism = 0;
+        
         if (part.options) {
-            optionsTotal = part.options.reduce((sum, opt) => {
+            part.options.forEach(opt => {
                 let price = opt.price || 0;
                 // 퍼센트 타입인 경우 프린팅 가격 기준 계산
                 if (opt.priceType === 'percent') {
                     price = Math.floor(printingPrice * (opt.price / 100));
                 }
-                return sum + price;
-            }, 0);
+                
+                if (opt.type === 'postProcessing') {
+                    postProcessing += price;
+                } else {
+                    mechanism += price;
+                }
+            });
         }
         
         return {
             printing: printingPrice,
-            options: optionsTotal,
-            subtotal: printingPrice + optionsTotal
+            postProcessing: postProcessing,
+            mechanism: mechanism,
+            subtotal: printingPrice + postProcessing + mechanism
         };
     },
 

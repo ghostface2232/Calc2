@@ -4,7 +4,7 @@
 const App = {
     state: {
         activeQuoteId: null,
-        targetQuoteIdForIcon: null // 아이콘 변경 대상 견적 ID
+        targetQuoteIdForIcon: null
     },
 
     // 사용 가능한 아이콘 목록 (SVG path)
@@ -120,6 +120,10 @@ const App = {
             e.preventDefault();
             this.saveQuoteName();
         });
+        document.getElementById('form-view-name').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveViewName();
+        });
     },
 
     // === 견적 관리 ===
@@ -178,6 +182,38 @@ const App = {
             this.renderCalculator();
         }
         Modal.close('modal-quote-name');
+    },
+
+    // === 뷰 이름 수정 (신규) ===
+    editViewName(quoteId, viewId) {
+        const quote = DataManager.getQuote(quoteId);
+        if (!quote) return;
+        const view = quote.views.find(v => v.id === viewId);
+        if (!view) return;
+
+        document.getElementById('view-name-quote-id').value = quoteId;
+        document.getElementById('view-name-view-id').value = viewId;
+        document.getElementById('view-name-input').value = view.name || '';
+        Modal.open('modal-view-name');
+    },
+
+    saveViewName() {
+        const quoteId = document.getElementById('view-name-quote-id').value;
+        const viewId = document.getElementById('view-name-view-id').value;
+        const name = document.getElementById('view-name-input').value.trim();
+        
+        if (!name) return;
+
+        const quote = DataManager.getQuote(quoteId);
+        if (quote) {
+            const view = quote.views.find(v => v.id === viewId);
+            if (view) {
+                view.name = name;
+                DataManager.saveQuote(quote);
+                this.renderCalculator();
+            }
+        }
+        Modal.close('modal-view-name');
     },
 
     // === 아이콘 피커 ===
@@ -258,7 +294,10 @@ const App = {
         if (lastView) {
             DataManager.duplicateView(quoteId, lastView.id);
         } else {
-            quote.views.push(DataManager.createView());
+            // 새 뷰 추가 시 이름 자동 지정
+            const newName = `뷰 ${quote.views.length + 1}`;
+            const newView = DataManager.createView(newName);
+            quote.views.push(newView);
             DataManager.saveQuote(quote);
         }
         

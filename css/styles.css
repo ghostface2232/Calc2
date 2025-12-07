@@ -556,7 +556,7 @@ body {
     box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
-/* 헤더 액션 버튼 그룹 (수정, 복제, 삭제) */
+/* 헤더 액션 버튼 그룹 */
 .part-header-actions {
     display: flex;
     gap: 2px;
@@ -646,13 +646,22 @@ body {
     -webkit-appearance: none;
 }
 
-/* 가격 표시 */
+/* 가격 표시 (수정됨: 상세 항목 지원) */
 .part-price {
     text-align: right;
     font-size: 13px;
     font-weight: 700;
     color: var(--color-primary);
     padding: 6px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.part-price-detail {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
 }
 
 /* 옵션 버튼들 */
