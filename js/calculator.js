@@ -1,5 +1,6 @@
 /**
- * UI 렌더링 모듈 (계산기 뷰 + 사이드바 + 설정 리스트)
+ * UI 렌더링 모듈
+ * 계산기 뷰, 사이드바 목록, 설정 모달 목록의 HTML 생성을 담당합니다.
  */
 const Calculator = {
     // ==========================================
@@ -14,7 +15,7 @@ const Calculator = {
             this.renderView(quote, view, index)
         ).join('');
 
-        // 비교 뷰 추가 버튼 (마지막에 붙음)
+        // 비교 뷰 추가 버튼
         viewsHtml += `
             <button class="btn-add-view" onclick="App.addView('${quote.id}')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -25,9 +26,6 @@ const Calculator = {
             </button>
         `;
 
-        // 렌더링 후 DOM 삽입은 App.js에서 처리하지만, 
-        // 편의상 컨테이너 내부를 반환하거나 직접 주입하는 방식을 지원해야 함.
-        // 여기서는 HTML 문자열을 반환합니다.
         return viewsHtml;
     },
 
@@ -36,7 +34,7 @@ const Calculator = {
         const clients = DataManager.getClients();
         const totals = DataManager.calculateQuoteTotal(quote, view.id);
         
-        const isCustomClient = !quote.clientId && quote.customClient; // 커스텀 모드인지 확인
+        const isCustomClient = !quote.clientId && quote.customClient;
         const selectedClient = quote.clientId ? DataManager.getClient(quote.clientId) : null;
         const canRemove = quote.views.length > 1;
 
@@ -163,12 +161,10 @@ const Calculator = {
         const selectedMaterial = DataManager.getMaterial(part.materialId);
         const optionPresets = DataManager.getOptionPresets();
         
-        // 현재 선택된 재료명에 해당하는 컬러 리스트 추출
         let colorOptions = [];
         if (selectedMaterial) {
             colorOptions = DataManager.getColorsForMaterial(selectedMaterial.name);
         } else if (part.materialId) {
-            // 재료 ID는 있지만 데이터가 로드되지 않았을 경우의 방어 코드
             const mat = DataManager.getMaterial(part.materialId);
             if(mat) colorOptions = DataManager.getColorsForMaterial(mat.name);
         }
@@ -260,7 +256,6 @@ const Calculator = {
                 ${part.options && part.options.length > 0 ? `
                     <div class="part-options-list">
                         ${part.options.map((opt, optIndex) => {
-                            // 현재 옵션 타입(postProcessing/mechanism)에 맞는 프리셋만 필터링
                             const availablePresets = optionPresets.filter(p => p.type === opt.type);
                             return `
                             <div class="option-item">
@@ -327,9 +322,6 @@ const Calculator = {
     // ==========================================
     // 2. 사이드바 및 설정 리스트 렌더링
     // ==========================================
-    // App.js에서 호출하는 renderQuoteList, renderMaterialList 등이 
-    // 누락된 경우를 대비해 Calculator 객체에 포함시킵니다.
-    // App.js에서 Calculator.renderQuoteList(...) 형태로 호출하면 됩니다.
 
     renderQuoteList(quotes, activeQuoteId) {
         const listEl = document.getElementById('quote-list');
@@ -341,7 +333,6 @@ const Calculator = {
         }
 
         listEl.innerHTML = quotes.map(quote => {
-            // App.ICONS를 사용하되, 없으면 기본 아이콘 사용
             const iconSvg = (window.App && App.ICONS && quote.icon && App.ICONS[quote.icon]) 
                 ? App.ICONS[quote.icon] 
                 : '<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>';

@@ -375,18 +375,15 @@ body {
 
 /* ===== 계산기 컨테이너 (화면 중앙 정렬 적용) ===== */
 .calculator-container {
-    display: inline-flex; /* 내용물 크기에 맞춤 + flex 동작 */
+    display: inline-flex;
     gap: 20px;
     padding: 0 20px 20px;
     overflow-x: auto;
-    
-    /* 중앙 정렬의 핵심: 마진 오토 */
     margin: 0 auto; 
-    
-    /* 컨테이너가 화면보다 작을 땐 중앙, 클 땐 스크롤 */
     min-width: 100%;
     width: fit-content;
     justify-content: center; 
+    text-align: left; 
 }
 
 /* 스크롤바 커스텀 */
@@ -417,12 +414,7 @@ body {
     max-width: 560px;
     height: fit-content;
     max-height: 100%;
-    text-align: left; /* 내부 텍스트 왼쪽 정렬 */
-}
-
-/* 컨테이너 내부 아이템 정렬 초기화 */
-.calculator-container {
-    text-align: left; 
+    text-align: left;
 }
 
 .calculator-header {
@@ -1140,7 +1132,7 @@ body {
     opacity: 0;
     visibility: hidden;
     transition: var(--transition);
-    z-index: 1000;
+    z-index: 9999; /* 사이드바 핸들(z-index:10)보다 위에 오도록 설정 */
 }
 
 .modal-overlay.active {

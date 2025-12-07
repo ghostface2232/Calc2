@@ -1,5 +1,6 @@
 /**
  * 데이터 관리 모듈
+ * LocalStorage 관리, 데이터 무결성 검사, 계산 로직, Undo/Redo 처리
  */
 const DataManager = {
     KEYS: {
@@ -199,7 +200,7 @@ const DataManager = {
         // 현재 상태 Redo 스택에 저장
         const currentState = {
             quotes: this.getQuotes(),
-            activeQuoteId: App.state.activeQuoteId // App.state 참조 필요
+            activeQuoteId: App.state.activeQuoteId 
         };
         this.redoStack.push(JSON.stringify(currentState));
         
@@ -246,8 +247,13 @@ const DataManager = {
     getQuotes() {
         const quotes = this.load(this.KEYS.QUOTES) || [];
         
-        // 데이터 무결성 보장 (필수 필드 누락 시 자동 생성)
+        // [중요] 데이터 무결성 보장 (필수 필드 누락 시 자동 생성)
         return quotes.map(quote => {
+            // customClient 객체가 없는 레거시 데이터 방어
+            if (!quote.customClient) {
+                quote.customClient = null;
+            }
+
             if (!quote.views) {
                 quote.views = [this.createView()];
             }
@@ -280,9 +286,6 @@ const DataManager = {
     },
 
     createQuote(name = '새 견적') {
-        // App.state.activeQuoteId가 아직 할당되지 않았을 수 있으므로 null 처리
-        // 하지만 create 직후 activeQuoteId가 바뀔 것이므로, 이전 상태(현재 상태)를 캡처
-        // App.js에서 호출 시 captureState 먼저 함
         const quote = {
             id: this.generateId('quote'),
             name: name,
@@ -370,7 +373,6 @@ const DataManager = {
         }));
 
         quote.views.push(newView);
-        // 직접 전체 배열 저장하여 업데이트
         this.save(this.KEYS.QUOTES, this.getQuotes());
         return newView;
     },
@@ -419,7 +421,7 @@ const DataManager = {
     calculatePartPrice(part) {
         const material = this.getMaterial(part.materialId);
         const pricePerUnit = material ? material.pricePerUnit : 500;
-        const printingPrice = pricePerUnit * (part.volume || 0);
+        const printingPrice = Math.round(pricePerUnit * (part.volume || 0));
         
         let postProcessing = 0;
         let mechanism = 0;

@@ -27,13 +27,25 @@ const App = {
         TabManager.init();
         this.initSidebar();
         this.bindEvents();
+        
+        // 데이터 로드 및 초기 활성 견적 설정
+        const quotes = DataManager.getQuotes();
+        if (quotes.length > 0 && !this.state.activeQuoteId) {
+            this.state.activeQuoteId = quotes[0].id;
+        }
+
+        this.renderAll();
+        this.updateHistoryButtons();
+    },
+
+    // UI 전체 업데이트
+    renderAll() {
         this.renderQuoteList();
         this.renderCalculator();
         this.renderMaterialList();
         this.renderClientList();
         this.renderOptionPresetList();
         this.renderIconPicker();
-        this.updateHistoryButtons();
     },
 
     initSidebar() {
@@ -43,9 +55,7 @@ const App = {
         if (!settings.sidebarCollapsed) {
             sidebar.style.width = settings.sidebarWidth + 'px';
             document.documentElement.style.setProperty('--sidebar-width', settings.sidebarWidth + 'px');
-        }
-        
-        if (settings.sidebarCollapsed) {
+        } else {
             sidebar.classList.add('collapsed');
         }
         
@@ -118,11 +128,53 @@ const App = {
         });
     },
 
+    // === 렌더링 위임 ===
+    renderQuoteList() {
+        const quotes = DataManager.getQuotes();
+        if (Calculator.renderQuoteList) {
+            Calculator.renderQuoteList(quotes, this.state.activeQuoteId);
+        }
+    },
+
+    renderCalculator() {
+        const container = document.getElementById('calculator-container');
+        if (!container) return;
+
+        if (!this.state.activeQuoteId) {
+            container.innerHTML = Calculator.renderEmpty();
+            return;
+        }
+
+        const quote = DataManager.getQuote(this.state.activeQuoteId);
+        if (!quote) {
+            this.state.activeQuoteId = null;
+            container.innerHTML = Calculator.renderEmpty();
+            return;
+        }
+
+        container.innerHTML = Calculator.renderQuote(quote);
+    },
+
+    renderMaterialList() {
+        const materials = DataManager.getMaterials();
+        if (Calculator.renderMaterialList) Calculator.renderMaterialList(materials);
+    },
+
+    renderClientList() {
+        const clients = DataManager.getClients();
+        if (Calculator.renderClientList) Calculator.renderClientList(clients);
+    },
+
+    renderOptionPresetList() {
+        const presets = DataManager.getOptionPresets();
+        if (Calculator.renderOptionPresetList) Calculator.renderOptionPresetList(presets);
+    },
+
     // === Undo/Redo ===
     performUndo() {
         const restoredId = DataManager.undo();
-        if (restoredId !== null) { // restoredId가 null이 아니면 성공
-            if (restoredId) this.state.activeQuoteId = restoredId; // 해당 견적으로 이동
+        if (restoredId !== null) {
+            if (restoredId) this.state.activeQuoteId = restoredId;
             this.renderQuoteList();
             this.renderCalculator();
             this.updateHistoryButtons();
@@ -180,7 +232,7 @@ const App = {
 
     // === 견적 로직 ===
     createNewQuote() {
-        DataManager.captureState(this.state.activeQuoteId); // History Capture
+        DataManager.captureState(this.state.activeQuoteId);
         const quotes = DataManager.getQuotes();
         const num = quotes.length + 1;
         const quote = DataManager.createQuote(`견적 ${String(num).padStart(2, '0')}`);
@@ -249,7 +301,11 @@ const App = {
         if (view) {
             view.name = newName;
             DataManager.saveQuote(quote);
-            this.renderCalculator();
+            // 뷰 이름 변경 시 사이드바나 다른 곳에 영향이 없으므로 계산기만 다시 그림
+            // 하지만 안전하게 하기 위해 renderCalculator 호출
+            // 입력 포커스 유지를 위해 전체 리렌더링보다는 부분 업데이트가 좋지만,
+            // 현재 구조상 전체 렌더링을 하되 onblur 이벤트로 처리 중이므로 괜찮음
+            this.renderCalculator(); 
             this.updateHistoryButtons();
         }
     },
@@ -261,6 +317,8 @@ const App = {
 
     renderIconPicker() {
         const container = document.getElementById('icon-picker-grid');
+        if (!container) return;
+        
         container.innerHTML = Object.entries(this.ICONS).map(([key, path]) => `
             <div class="icon-option" onclick="App.setIcon('${key}')">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -510,7 +568,7 @@ const App = {
         if (!material.name || !material.color) return;
         DataManager.saveMaterial(material);
         this.renderMaterialList();
-        this.renderCalculator();
+        this.renderCalculator(); // 재료가 변경되었으므로 계산기도 업데이트
         Modal.close('modal-material-edit');
     },
 
