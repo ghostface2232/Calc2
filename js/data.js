@@ -1,10 +1,5 @@
 /**
  * 데이터 관리 모듈
- * - LocalStorage 관리
- * - 데이터 무결성 보장 및 마이그레이션
- * - Undo/Redo 상태 관리
- * - 비용 계산 로직
- * - 설정 Import/Export
  */
 const DataManager = {
     KEYS: {
@@ -18,7 +13,7 @@ const DataManager = {
     // 히스토리 관리 변수
     history: [],
     redoStack: [],
-    isHistoryAction: false, // Undo/Redo 실행 중 히스토리 저장을 방지하기 위한 플래그
+    isHistoryAction: false,
 
     // 기본 재료 데이터
     DEFAULT_MATERIALS: [
@@ -36,12 +31,10 @@ const DataManager = {
         sidebarCollapsed: false
     },
 
-    // 유니크 ID 생성
     generateId(prefix = 'id') {
         return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     },
 
-    // LocalStorage 로드
     load(key) {
         try {
             const data = localStorage.getItem(key);
@@ -52,7 +45,6 @@ const DataManager = {
         }
     },
 
-    // LocalStorage 저장
     save(key, data) {
         try {
             localStorage.setItem(key, JSON.stringify(data));
@@ -63,7 +55,6 @@ const DataManager = {
         }
     },
 
-    // 앱 초기화: 데이터가 없으면 기본값 생성
     init() {
         if (!this.load(this.KEYS.MATERIALS)) {
             this.save(this.KEYS.MATERIALS, this.DEFAULT_MATERIALS);
@@ -184,54 +175,63 @@ const DataManager = {
     },
 
     // === Undo / Redo Logic ===
-    captureState() {
-        if (this.isHistoryAction) return; // Undo/Redo 중이면 캡처하지 않음
+    captureState(activeQuoteId) {
+        if (this.isHistoryAction) return;
 
-        const currentQuotes = this.getQuotes();
-        // 깊은 복사 후 저장
-        this.history.push(JSON.stringify(currentQuotes));
+        const currentState = {
+            quotes: this.getQuotes(),
+            activeQuoteId: activeQuoteId || null
+        };
         
-        // 새 동작이 발생하면 Redo 스택 초기화
+        this.history.push(JSON.stringify(currentState));
         this.redoStack = [];
         
-        // 히스토리 최대 개수 제한 (메모리 관리, 예: 50개)
         if (this.history.length > 50) {
             this.history.shift();
         }
     },
 
     undo() {
-        if (this.history.length === 0) return false;
+        if (this.history.length === 0) return null;
         
         this.isHistoryAction = true;
         
-        // 현재 상태를 Redo 스택에 저장
-        const currentState = this.getQuotes();
+        // 현재 상태 Redo 스택에 저장
+        const currentState = {
+            quotes: this.getQuotes(),
+            activeQuoteId: App.state.activeQuoteId // App.state 참조 필요
+        };
         this.redoStack.push(JSON.stringify(currentState));
         
         // 이전 상태 복원
         const previousState = JSON.parse(this.history.pop());
-        this.save(this.KEYS.QUOTES, previousState);
+        this.save(this.KEYS.QUOTES, previousState.quotes);
         
         this.isHistoryAction = false;
-        return true;
+        
+        // 복원된 activeQuoteId 반환
+        return previousState.activeQuoteId;
     },
 
     redo() {
-        if (this.redoStack.length === 0) return false;
+        if (this.redoStack.length === 0) return null;
 
         this.isHistoryAction = true;
 
-        // 현재 상태를 Undo 히스토리에 저장
-        const currentState = this.getQuotes();
+        // 현재 상태 Undo 스택에 저장
+        const currentState = {
+            quotes: this.getQuotes(),
+            activeQuoteId: App.state.activeQuoteId
+        };
         this.history.push(JSON.stringify(currentState));
 
         // 다음 상태 복원
         const nextState = JSON.parse(this.redoStack.pop());
-        this.save(this.KEYS.QUOTES, nextState);
+        this.save(this.KEYS.QUOTES, nextState.quotes);
 
         this.isHistoryAction = false;
-        return true;
+        
+        return nextState.activeQuoteId;
     },
 
     canUndo() {
@@ -242,36 +242,31 @@ const DataManager = {
         return this.redoStack.length > 0;
     },
 
-    // === 견적 관리 (Quotes) - 데이터 무결성 검사 포함 ===
+    // === 견적 관리 (Quotes) ===
     getQuotes() {
         const quotes = this.load(this.KEYS.QUOTES) || [];
         
-        // 데이터 마이그레이션: 구버전 데이터를 로드할 때 누락된 필드를 채워줍니다.
+        // 데이터 무결성 보장 (필수 필드 누락 시 자동 생성)
         return quotes.map(quote => {
-            // views가 없으면 생성
             if (!quote.views) {
                 quote.views = [this.createView()];
             }
             
             quote.views.forEach((view, index) => {
-                // 뷰 이름 없으면 생성
                 if (!view.name) {
                     view.name = `뷰 ${index + 1}`;
                 }
-                // parts 없으면 생성
                 if (!view.parts) {
                     view.parts = [];
                 }
                 
-                // 파트 내부 구조 확인
                 view.parts.forEach(part => {
                     if (!part.options) {
                         part.options = [];
                     }
-                    // 옵션 가격 타입 확인
                     part.options.forEach(opt => {
                         if (!opt.priceType) {
-                            opt.priceType = 'fixed'; // 기본값
+                            opt.priceType = 'fixed';
                         }
                     });
                 });
@@ -285,11 +280,13 @@ const DataManager = {
     },
 
     createQuote(name = '새 견적') {
-        this.captureState(); // 변경 전 상태 저장
+        // App.state.activeQuoteId가 아직 할당되지 않았을 수 있으므로 null 처리
+        // 하지만 create 직후 activeQuoteId가 바뀔 것이므로, 이전 상태(현재 상태)를 캡처
+        // App.js에서 호출 시 captureState 먼저 함
         const quote = {
             id: this.generateId('quote'),
             name: name,
-            icon: null, // 아이콘 (null이면 문자 표시)
+            icon: null,
             clientId: null,
             customClient: null,
             views: [
@@ -313,7 +310,6 @@ const DataManager = {
     },
 
     saveQuote(quote) {
-        this.captureState(); // 변경 전 상태 저장
         const quotes = this.getQuotes();
         const index = quotes.findIndex(q => q.id === quote.id);
         quote.updatedAt = new Date().toISOString();
@@ -327,14 +323,11 @@ const DataManager = {
     },
 
     deleteQuote(id) {
-        this.captureState(); // 변경 전 상태 저장
         const quotes = this.getQuotes().filter(q => q.id !== id);
         this.save(this.KEYS.QUOTES, quotes);
     },
 
-    // 견적 파일 복제
     duplicateQuote(id) {
-        this.captureState(); // 변경 전 상태 저장
         const original = this.getQuote(id);
         if (!original) return null;
 
@@ -344,7 +337,6 @@ const DataManager = {
         duplicate.createdAt = new Date().toISOString();
         duplicate.updatedAt = new Date().toISOString();
         
-        // 뷰와 파트 ID 재생성 (참조 끊기)
         if (duplicate.views) {
             duplicate.views = duplicate.views.map(view => ({
                 ...view,
@@ -362,9 +354,7 @@ const DataManager = {
         return duplicate;
     },
 
-    // 뷰 복제
     duplicateView(quoteId, viewId) {
-        this.captureState(); // 변경 전 상태 저장
         const quote = this.getQuote(quoteId);
         if (!quote) return null;
 
@@ -380,13 +370,12 @@ const DataManager = {
         }));
 
         quote.views.push(newView);
-        // saveQuote를 호출하면 captureState가 중복되므로 직접 저장
+        // 직접 전체 배열 저장하여 업데이트
         this.save(this.KEYS.QUOTES, this.getQuotes());
         return newView;
     },
 
     removeView(quoteId, viewId) {
-        this.captureState(); // 변경 전 상태 저장
         const quote = this.getQuote(quoteId);
         if (!quote || quote.views.length <= 1) return false;
         
@@ -405,9 +394,7 @@ const DataManager = {
         };
     },
 
-    // 파트 복제
     duplicatePart(quoteId, viewId, partId) {
-        this.captureState(); // 변경 전 상태 저장
         const quote = this.getQuote(quoteId);
         if (!quote) return null;
 
@@ -421,7 +408,6 @@ const DataManager = {
         newPart.id = this.generateId('part');
         newPart.name = `${originalPart.name} - 복사본`;
 
-        // 원래 파트 바로 뒤에 삽입
         const index = view.parts.indexOf(originalPart);
         view.parts.splice(index + 1, 0, newPart);
 
@@ -429,7 +415,7 @@ const DataManager = {
         return newPart;
     },
 
-    // === 계산 로직 (상세 분할) ===
+    // === 계산 로직 ===
     calculatePartPrice(part) {
         const material = this.getMaterial(part.materialId);
         const pricePerUnit = material ? material.pricePerUnit : 500;
@@ -438,12 +424,10 @@ const DataManager = {
         let postProcessing = 0;
         let mechanism = 0;
         
-        // 옵션 배열 안전 처리
         const options = part.options || [];
         
         options.forEach(opt => {
             let price = opt.price || 0;
-            // 퍼센트 타입인 경우 프린팅 가격 기준 계산
             if (opt.priceType === 'percent') {
                 price = Math.floor(printingPrice * (opt.price / 100));
             }
@@ -466,7 +450,7 @@ const DataManager = {
     calculateViewTotal(view) {
         let subtotal = 0;
         const partSummary = [];
-        const parts = view.parts || []; // 안전 처리
+        const parts = view.parts || [];
         
         parts.forEach(part => {
             const partPrice = this.calculatePartPrice(part);
@@ -534,7 +518,6 @@ const DataManager = {
         try {
             const config = JSON.parse(jsonString);
             
-            // 유효성 검사 및 저장
             if (config.materials && Array.isArray(config.materials)) {
                 this.save(this.KEYS.MATERIALS, config.materials);
             }

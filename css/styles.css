@@ -174,7 +174,6 @@ body {
     padding: 12px;
 }
 
-/* 사이드바 접혔을 때 설정 아이콘 크기 고정 */
 .sidebar.collapsed .sidebar-footer .btn-settings svg {
     width: 20px;
     height: 20px;
@@ -339,12 +338,12 @@ body {
     flex-direction: column;
 }
 
-/* 메인 헤더 (Undo/Redo 버튼) */
+/* 메인 헤더 (Undo/Redo) */
 .main-header {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 0 10px 10px 10px;
+    padding: 0 20px 10px 20px;
     gap: 8px;
     flex-shrink: 0;
 }
@@ -374,18 +373,36 @@ body {
     cursor: not-allowed;
 }
 
-/* ===== 계산기 컨테이너 (멀티뷰) ===== */
+/* ===== 계산기 컨테이너 (화면 중앙 정렬 적용) ===== */
 .calculator-container {
-    display: flex;
+    display: inline-flex; /* 내용물 크기에 맞춤 + flex 동작 */
     gap: 20px;
-    height: 100%;
+    padding: 0 20px 20px;
     overflow-x: auto;
-    padding-bottom: 10px;
+    
+    /* 중앙 정렬의 핵심: 마진 오토 */
+    margin: 0 auto; 
+    
+    /* 컨테이너가 화면보다 작을 땐 중앙, 클 땐 스크롤 */
+    min-width: 100%;
+    width: fit-content;
+    justify-content: center; 
 }
 
+/* 스크롤바 커스텀 */
 .calculator-container::-webkit-scrollbar {
     height: 8px;
 }
+
+.calculator-container::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.calculator-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 
 /* ===== 계산기 카드 (뷰) ===== */
 .calculator {
@@ -395,17 +412,17 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    flex: 0 0 480px;
+    flex: 0 0 480px; /* 고정 너비 */
     min-width: 400px;
     max-width: 560px;
     height: fit-content;
     max-height: 100%;
+    text-align: left; /* 내부 텍스트 왼쪽 정렬 */
 }
 
-.calculator-container:has(.calculator:only-child) .calculator {
-    flex: 1;
-    max-width: 600px;
-    margin: 0 auto;
+/* 컨테이너 내부 아이템 정렬 초기화 */
+.calculator-container {
+    text-align: left; 
 }
 
 .calculator-header {
@@ -524,7 +541,7 @@ body {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
-    padding-right: 28px;
+    padding-right: 32px;
     cursor: pointer;
 }
 
