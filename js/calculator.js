@@ -34,7 +34,6 @@ const Calculator = {
         const selectedClient = quote.clientId ? DataManager.getClient(quote.clientId) : null;
         const canRemove = quote.views.length > 1;
 
-        // 뷰 이름 인라인 수정 UI
         const viewName = view.name ? view.name : `뷰 ${viewIndex + 1}`;
         const viewLabel = `
             <div class="view-name-container">
@@ -63,12 +62,6 @@ const Calculator = {
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
-                            </button>
-                            <button class="btn-icon" onclick="App.duplicateView('${quote.id}', '${view.id}')" title="이 뷰 복제">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                                 </svg>
                             </button>
                             ${canRemove ? `
@@ -188,7 +181,7 @@ const Calculator = {
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </button>
-                        <button class="part-action-btn" onclick="App.duplicatePart('${quoteId}', '${view.id}', '${part.id}')" title="복제">
+                        <button class="part-action-btn" onclick="App.duplicatePart('${quoteId}', '${viewId}', '${part.id}')" title="복제">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
