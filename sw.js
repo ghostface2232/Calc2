@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quote-calculator-v3.1'; // 버전 업데이트
+const CACHE_NAME = 'gluck-calc-v3.2';
 const ASSETS = [
     './',
     './index.html',
