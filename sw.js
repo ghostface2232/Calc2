@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gluck-calc-v6.1'; 
+const CACHE_NAME = 'gluck-calc-v6.5'; 
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
