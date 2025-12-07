@@ -7,7 +7,8 @@ const Modal = {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // 스크롤 방지
+            // 스크롤 방지
+            document.body.style.overflow = 'hidden'; 
         }
     },
 
@@ -16,7 +17,10 @@ const Modal = {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.remove('active');
-            document.body.style.overflow = ''; // 스크롤 복구
+            // 스크롤 복구 (다른 모달이 없을 때만)
+            if (!document.querySelector('.modal-overlay.active')) {
+                document.body.style.overflow = '';
+            }
         }
     },
 
@@ -31,13 +35,15 @@ const Modal = {
     // 초기화 및 이벤트 바인딩
     init() {
         // 닫기 버튼 및 data-modal 속성을 가진 요소들에 이벤트 연결
-        document.querySelectorAll('.btn-close, [data-modal]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                // 버튼이 닫기 버튼인 경우 타겟 모달 ID를 가져옴
-                // data-modal 속성이 있다면 그 값을 사용 (닫기 버튼 등)
-                const modalId = e.currentTarget.dataset.modal;
+        document.body.addEventListener('click', (e) => {
+            const trigger = e.target.closest('[data-modal]');
+            const closeBtn = e.target.closest('.btn-close');
+            
+            // 닫기 버튼 또는 취소 버튼 처리
+            if (trigger && (closeBtn || trigger.classList.contains('btn-secondary'))) {
+                const modalId = trigger.dataset.modal;
                 if (modalId) this.close(modalId);
-            });
+            }
         });
 
         // 모달 배경(Overlay) 클릭 시 닫기
@@ -59,41 +65,45 @@ const Modal = {
 };
 
 /**
- * 탭 UI 관리 (설정 모달 내부 등)
+ * 탭 UI 관리 (설정 모달 등)
  */
 const TabManager = {
     init() {
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                this.switchTab(e.currentTarget.dataset.tab);
-            });
+        // 탭 버튼 클릭 이벤트 (위임 사용)
+        document.body.addEventListener('click', (e) => {
+            const tabBtn = e.target.closest('.tab');
+            if (tabBtn) {
+                const tabId = tabBtn.dataset.tab;
+                if (tabId) this.switchTab(tabBtn, tabId);
+            }
         });
     },
 
-    switchTab(tabId) {
-        // 탭 버튼 활성화 상태 변경
-        document.querySelectorAll('.tab').forEach(tab => {
-            if (tab.dataset.tab === tabId) {
-                tab.classList.add('active');
-            } else {
-                // 같은 그룹 내의 탭만 비활성화 (현재는 설정 모달 하나뿐이라 전체 조회해도 무방)
-                // 만약 여러 탭 그룹이 생긴다면 부모 컨테이너 기준 탐색으로 고도화 필요
-                if (tab.closest('.tabs') === document.querySelector(`.tab[data-tab="${tabId}"]`).closest('.tabs')) {
-                    tab.classList.remove('active');
-                }
-            }
-        });
+    switchTab(activeBtn, tabId) {
+        const container = activeBtn.closest('.modal-body') || document.body;
+        
+        // 1. 탭 버튼 활성화 처리
+        const tabsContainer = activeBtn.closest('.tabs');
+        if (tabsContainer) {
+            tabsContainer.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            activeBtn.classList.add('active');
+        }
 
-        // 탭 콘텐츠 표시 상태 변경
-        document.querySelectorAll('.tab-content').forEach(content => {
-            if (content.id === `tab-${tabId}`) {
-                content.classList.add('active');
-            } else {
-                // 같은 부모를 공유하는 콘텐츠만 숨김 처리
-                if (content.parentElement === document.getElementById(`tab-${tabId}`).parentElement) {
-                    content.classList.remove('active');
-                }
+        // 2. 탭 콘텐츠 표시 처리
+        // 탭 콘텐츠들이 모달 내부에 있다고 가정하고 검색
+        const contentContainer = container.querySelector(`#tab-${tabId}`)?.parentElement || container;
+        
+        if (contentContainer) {
+            contentContainer.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const targetContent = document.getElementById(`tab-${tabId}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
             }
-        });
+        }
     }
 };
