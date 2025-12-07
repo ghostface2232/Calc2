@@ -7,7 +7,6 @@ const App = {
         targetQuoteIdForIcon: null
     },
 
-    // 사용 가능한 아이콘 목록 (SVG path)
     ICONS: {
         text: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
         layout: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',

@@ -34,6 +34,7 @@ const Calculator = {
         const selectedClient = quote.clientId ? DataManager.getClient(quote.clientId) : null;
         const canRemove = quote.views.length > 1;
 
+        // 뷰 이름 인라인 수정 UI
         const viewName = view.name ? view.name : `뷰 ${viewIndex + 1}`;
         const viewLabel = `
             <div class="view-name-container">

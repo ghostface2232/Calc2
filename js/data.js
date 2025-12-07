@@ -179,7 +179,7 @@ const DataManager = {
     getQuotes() {
         const quotes = this.load(this.KEYS.QUOTES) || [];
         
-        // 데이터 마이그레이션 및 무결성 보장
+        // 데이터 마이그레이션 (구버전 호환)
         return quotes.map(quote => {
             // views 배열이 없는 경우
             if (!quote.views) {
@@ -187,24 +187,22 @@ const DataManager = {
             }
             
             quote.views.forEach((view, index) => {
-                // 뷰 이름이 없는 경우 (구버전)
+                // 뷰 이름이 없는 경우
                 if (!view.name) {
                     view.name = `뷰 ${index + 1}`;
                 }
-                // parts 배열이 없는 경우 (구버전)
+                // parts 배열이 없는 경우
                 if (!view.parts) {
                     view.parts = [];
                 }
-                // 옵션 가격 타입이 없는 경우 (구버전)
-                if (view.parts) {
-                    view.parts.forEach(part => {
-                        if (part.options) {
-                            part.options.forEach(opt => {
-                                if (!opt.priceType) opt.priceType = 'fixed';
-                            });
-                        }
-                    });
-                }
+                // 파트별 옵션의 가격 타입이 없는 경우 'fixed'로 기본값
+                view.parts.forEach(part => {
+                    if (part.options) {
+                        part.options.forEach(opt => {
+                            if (!opt.priceType) opt.priceType = 'fixed';
+                        });
+                    }
+                });
             });
             return quote;
         });
@@ -362,7 +360,6 @@ const DataManager = {
         if (part.options) {
             part.options.forEach(opt => {
                 let price = opt.price || 0;
-                // 퍼센트 타입인 경우 프린팅 가격 기준 계산
                 if (opt.priceType === 'percent') {
                     price = Math.floor(printingPrice * (opt.price / 100));
                 }
