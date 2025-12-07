@@ -377,12 +377,18 @@ body {
 .calculator-container {
     display: inline-flex;
     gap: 20px;
-    padding: 0 20px 20px;
+    padding: 20px; /* 상하좌우 패딩 통일 (중앙 정렬 시 균형을 위해) */
     overflow-x: auto;
+    
+    /* 중앙 정렬의 핵심 로직 */
     margin: 0 auto; 
     min-width: 100%;
     width: fit-content;
-    justify-content: center; 
+    height: 100%; /* 부모 높이만큼 채워서 수직 중앙 정렬 가능하게 함 */
+    
+    align-items: center; /* 수직 중앙 정렬 */
+    justify-content: center; /* 수평 중앙 정렬 */
+    
     text-align: left; 
 }
 
@@ -412,8 +418,10 @@ body {
     flex: 0 0 480px; /* 고정 너비 */
     min-width: 400px;
     max-width: 560px;
+    
     height: fit-content;
-    max-height: 100%;
+    max-height: 100%; /* 화면 높이보다 커지면 내부 스크롤 */
+    
     text-align: left;
 }
 
@@ -452,11 +460,12 @@ body {
     font-weight: 400;
 }
 
+/* [UX 개선] 견적 제목과 폰트 동일, 컬러는 Primary */
 .view-name-input {
     font-family: var(--font-family);
-    font-size: 18px; /* 견적 제목과 동일 */
-    font-weight: 700; /* 견적 제목과 동일 */
-    color: var(--color-primary); /* 색상만 다르게 */
+    font-size: 18px; 
+    font-weight: 700;
+    color: var(--color-primary); 
     border: 1px solid transparent;
     background: transparent;
     padding: 2px 6px;
@@ -467,7 +476,7 @@ body {
     cursor: default;
 }
 
-/* 읽기 전용일 때: 포인터 이벤트 제거 (클릭/호버 시 입력 필드 느낌 X) */
+/* [UX 개선] 읽기 전용일 때: 포인터 이벤트 제거 (클릭/호버 시 입력 필드 느낌 X) */
 .view-name-input:read-only {
     pointer-events: none;
     user-select: none;
