@@ -1,68 +1,61 @@
-const CACHE_NAME = 'gluck-calc-v5'; 
-const ASSETS = [
+const CACHE_NAME = 'gluckcalc-v6'; 
+const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './css/styles.css',
+    './js/app.js',
+    './js/calculator.js',
     './js/data.js',
     './js/modal.js',
-    './js/calculator.js',
-    './js/app.js',
     './manifest.json',
+    // 폰트 파일도 캐싱하면 오프라인 로딩이 자연스럽습니다. (파일이 실존해야 함)
     './fonts/SFKR-Regular.otf',
     './fonts/SFKR-Medium.otf',
     './fonts/SFKR-Bold.otf'
 ];
 
-// 설치: 자산 캐싱
+// 설치 (Install): 리소스 캐싱
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then((cache) => cache.addAll(ASSETS))
-            .then(() => self.skipWaiting()) // 대기 중인 워커를 즉시 활성화
+            .then((cache) => {
+                // console.log('캐시 시작');
+                return cache.addAll(ASSETS_TO_CACHE);
+            })
     );
+    // 대기 없이 즉시 활성화
+    self.skipWaiting();
 });
 
-// 활성화: 구버전 캐시 정리 및 클라이언트 제어권 획득
+// 활성화 (Activate): 구버전 캐시 정리
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((keys) => {
+        caches.keys().then((cacheNames) => {
             return Promise.all(
-                keys.filter((key) => key !== CACHE_NAME)
-                    .map((key) => caches.delete(key))
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_NAME) {
+                        // console.log('구버전 캐시 삭제:', cacheName);
+                        return caches.delete(cacheName);
+                    }
+                })
             );
         })
-        .then(() => self.clients.claim()) // 즉시 페이지 제어 시작
     );
+    // 모든 클라이언트(열려있는 탭 등)에서 즉시 새 서비스 워커 제어권 가져오기
+    return self.clients.claim();
 });
 
-// 패치: Network First 전략 (네트워크 우선 -> 실패 시 캐시)
-// 개발 중에는 네트워크의 최신 파일을 우선적으로 가져오도록 설정
+// 요청 (Fetch): 캐시 우선, 없으면 네트워크, 네트워크 실패 시 오프라인 페이지(선택)
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        fetch(event.request)
+        caches.match(event.request)
             .then((response) => {
-                // 네트워크 응답이 유효하면 캐시를 갱신하고 응답 반환
-                if (!response || response.status !== 200 || response.type !== 'basic') {
+                // 캐시에 있으면 반환
+                if (response) {
                     return response;
                 }
-                
-                const responseToCache = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, responseToCache);
-                });
-                
-                return response;
-            })
-            .catch(() => {
-                // 네트워크 요청 실패(오프라인) 시 캐시 반환
-                return caches.match(event.request)
-                    .then((response) => {
-                        if (response) return response;
-                        // 오프라인이면서 캐시도 없는 경우 (필요 시 index.html로 폴백)
-                        if (event.request.mode === 'navigate') {
-                            return caches.match('./index.html');
-                        }
-                    });
+                // 없으면 네트워크 요청
+                return fetch(event.request);
             })
     );
 });
