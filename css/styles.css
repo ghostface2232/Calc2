@@ -438,7 +438,7 @@ body {
     width: 100%;
 }
 
-/* 뷰 이름 인라인 수정 스타일 */
+/* 뷰 이름 인라인 수정 스타일 [UX 수정] */
 .view-name-container {
     display: flex;
     align-items: center;
@@ -454,9 +454,9 @@ body {
 
 .view-name-input {
     font-family: var(--font-family);
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--color-text-secondary);
+    font-size: 18px; /* 견적 제목과 동일 */
+    font-weight: 700; /* 견적 제목과 동일 */
+    color: var(--color-primary); /* 색상만 다르게 */
     border: 1px solid transparent;
     background: transparent;
     padding: 2px 6px;
@@ -467,6 +467,12 @@ body {
     cursor: default;
 }
 
+/* 읽기 전용일 때: 포인터 이벤트 제거 (클릭/호버 시 입력 필드 느낌 X) */
+.view-name-input:read-only {
+    pointer-events: none;
+    user-select: none;
+}
+
 .view-name-input:not([readonly]),
 .view-name-input:focus {
     background: var(--bg-input);
@@ -475,6 +481,7 @@ body {
     outline: none;
     box-shadow: 0 0 0 2px var(--color-primary-light);
     cursor: text;
+    pointer-events: auto; /* 활성화 시 입력 가능 */
 }
 
 .calculator-title-actions {

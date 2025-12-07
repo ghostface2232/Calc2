@@ -38,7 +38,9 @@ const Calculator = {
         const selectedClient = quote.clientId ? DataManager.getClient(quote.clientId) : null;
         const canRemove = quote.views.length > 1;
 
-        // 뷰 이름 (인라인 에딧 지원)
+        // [UX 개선] 뷰 이름 인라인 수정
+        // - 평소에는 pointer-events: none으로 텍스트처럼 동작
+        // - 버튼 클릭 시 pointer-events: auto 및 포커스, 입력 가능
         const viewName = view.name ? view.name : `뷰 ${viewIndex + 1}`;
         const viewLabel = `
             <div class="view-name-container">
@@ -48,10 +50,13 @@ const Calculator = {
                        id="view-name-${view.id}"
                        value="${viewName}" 
                        readonly
-                       onblur="this.readOnly = true;"
+                       onblur="this.readOnly = true; this.style.pointerEvents='none';"
                        onchange="App.updateViewName('${quote.id}', '${view.id}', this.value)"
                        onkeypress="if(event.key === 'Enter') this.blur();">
-                <button class="btn-icon" onclick="const input = document.getElementById('view-name-${view.id}'); input.readOnly = false; input.focus(); input.select();" title="뷰 이름 수정" style="margin-left:2px; width:24px; height:24px;">
+                <button class="btn-icon" 
+                        onclick="const input = document.getElementById('view-name-${view.id}'); input.readOnly = false; input.style.pointerEvents='auto'; input.focus(); input.select();" 
+                        title="뷰 이름 수정" 
+                        style="margin-left:4px; width:24px; height:24px;">
                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>

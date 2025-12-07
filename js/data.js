@@ -200,7 +200,7 @@ const DataManager = {
         // 현재 상태 Redo 스택에 저장
         const currentState = {
             quotes: this.getQuotes(),
-            activeQuoteId: App.state.activeQuoteId 
+            activeQuoteId: App.state.activeQuoteId // App.state 참조
         };
         this.redoStack.push(JSON.stringify(currentState));
         
@@ -244,12 +244,14 @@ const DataManager = {
     },
 
     // === 견적 관리 (Quotes) ===
+    // [중요] 모든 수정 로직은 getQuotes()로 전체 배열을 가져온 뒤,
+    // 해당 배열 내의 객체를 수정하고, 전체 배열을 다시 save() 하는 방식으로 통일하여 참조 오류 방지
+
     getQuotes() {
         const quotes = this.load(this.KEYS.QUOTES) || [];
         
-        // [중요] 데이터 무결성 보장 (필수 필드 누락 시 자동 생성)
+        // 데이터 무결성 보장 (필수 필드 누락 시 자동 생성)
         return quotes.map(quote => {
-            // customClient 객체가 없는 레거시 데이터 방어
             if (!quote.customClient) {
                 quote.customClient = null;
             }
@@ -286,6 +288,7 @@ const DataManager = {
     },
 
     createQuote(name = '새 견적') {
+        const quotes = this.getQuotes(); // 전체 목록 로드
         const quote = {
             id: this.generateId('quote'),
             name: name,
@@ -298,9 +301,8 @@ const DataManager = {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
-        const quotes = this.getQuotes();
-        quotes.unshift(quote);
-        this.save(this.KEYS.QUOTES, quotes);
+        quotes.unshift(quote); // 배열 맨 앞에 추가
+        this.save(this.KEYS.QUOTES, quotes); // 전체 저장
         return quote;
     },
 
@@ -331,7 +333,8 @@ const DataManager = {
     },
 
     duplicateQuote(id) {
-        const original = this.getQuote(id);
+        const quotes = this.getQuotes();
+        const original = quotes.find(q => q.id === id);
         if (!original) return null;
 
         const duplicate = JSON.parse(JSON.stringify(original));
@@ -351,14 +354,14 @@ const DataManager = {
             }));
         }
 
-        const quotes = this.getQuotes();
         quotes.unshift(duplicate);
         this.save(this.KEYS.QUOTES, quotes);
         return duplicate;
     },
 
     duplicateView(quoteId, viewId) {
-        const quote = this.getQuote(quoteId);
+        const quotes = this.getQuotes(); // 전체 목록 로드 (참조 유지)
+        const quote = quotes.find(q => q.id === quoteId);
         if (!quote) return null;
 
         const originalView = quote.views.find(v => v.id === viewId);
@@ -372,17 +375,18 @@ const DataManager = {
             id: this.generateId('part')
         }));
 
-        quote.views.push(newView);
-        this.save(this.KEYS.QUOTES, this.getQuotes());
+        quote.views.push(newView); // 해당 견적의 views 배열에 추가
+        this.save(this.KEYS.QUOTES, quotes); // 수정된 전체 목록 저장
         return newView;
     },
 
     removeView(quoteId, viewId) {
-        const quote = this.getQuote(quoteId);
+        const quotes = this.getQuotes();
+        const quote = quotes.find(q => q.id === quoteId);
         if (!quote || quote.views.length <= 1) return false;
         
         quote.views = quote.views.filter(v => v.id !== viewId);
-        this.save(this.KEYS.QUOTES, this.getQuotes());
+        this.save(this.KEYS.QUOTES, quotes);
         return true;
     },
 
@@ -397,7 +401,8 @@ const DataManager = {
     },
 
     duplicatePart(quoteId, viewId, partId) {
-        const quote = this.getQuote(quoteId);
+        const quotes = this.getQuotes();
+        const quote = quotes.find(q => q.id === quoteId);
         if (!quote) return null;
 
         const view = quote.views.find(v => v.id === viewId);
@@ -413,7 +418,7 @@ const DataManager = {
         const index = view.parts.indexOf(originalPart);
         view.parts.splice(index + 1, 0, newPart);
 
-        this.save(this.KEYS.QUOTES, this.getQuotes());
+        this.save(this.KEYS.QUOTES, quotes);
         return newPart;
     },
 
