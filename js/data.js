@@ -177,7 +177,37 @@ const DataManager = {
 
     // === 견적 ===
     getQuotes() {
-        return this.load(this.KEYS.QUOTES) || [];
+        const quotes = this.load(this.KEYS.QUOTES) || [];
+        
+        // 데이터 마이그레이션 및 무결성 보장
+        return quotes.map(quote => {
+            // views 배열이 없는 경우
+            if (!quote.views) {
+                quote.views = [this.createView()];
+            }
+            
+            quote.views.forEach((view, index) => {
+                // 뷰 이름이 없는 경우 (구버전)
+                if (!view.name) {
+                    view.name = `뷰 ${index + 1}`;
+                }
+                // parts 배열이 없는 경우 (구버전)
+                if (!view.parts) {
+                    view.parts = [];
+                }
+                // 옵션 가격 타입이 없는 경우 (구버전)
+                if (view.parts) {
+                    view.parts.forEach(part => {
+                        if (part.options) {
+                            part.options.forEach(opt => {
+                                if (!opt.priceType) opt.priceType = 'fixed';
+                            });
+                        }
+                    });
+                }
+            });
+            return quote;
+        });
     },
 
     getQuote(id) {
@@ -268,7 +298,7 @@ const DataManager = {
 
         const newView = JSON.parse(JSON.stringify(originalView));
         newView.id = this.generateId('view');
-        newView.name = originalView.name + ' (복사본)'; 
+        newView.name = originalView.name + ' (복사본)';
         newView.parts = newView.parts.map(part => ({
             ...part,
             id: this.generateId('part')

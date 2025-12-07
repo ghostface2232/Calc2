@@ -188,8 +188,6 @@ const App = {
         if (view) {
             view.name = newName;
             DataManager.saveQuote(quote);
-            // 전체 렌더링 대신 필요한 부분만 업데이트할 수도 있지만, 안전하게 전체 렌더링
-            // 여기선 input에서 focus를 잃었을 때 호출되므로 다시 렌더링해도 됨
             this.renderCalculator();
         }
     },
@@ -272,7 +270,6 @@ const App = {
         if (lastView) {
             DataManager.duplicateView(quoteId, lastView.id);
         } else {
-            // 새 뷰 추가 시 이름 자동 지정
             const newName = `뷰 ${quote.views.length + 1}`;
             const newView = DataManager.createView(newName);
             quote.views.push(newView);
