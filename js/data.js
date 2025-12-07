@@ -148,7 +148,7 @@ const DataManager = {
         this.save(this.KEYS.CLIENTS, clients);
     },
 
-    // === 옵션 프리셋 (신규 추가) ===
+    // === 옵션 프리셋 ===
     getOptionPresets() {
         return this.load(this.KEYS.OPTIONS) || [];
     },
@@ -188,10 +188,9 @@ const DataManager = {
         const quote = {
             id: this.generateId('quote'),
             name: name,
-            // 고객사: 핵심 고객사 ID 또는 직접 입력
+            icon: null, // 아이콘 (null이면 첫 글자)
             clientId: null,
-            customClient: null,  // { name, discountRate }
-            // 멀티뷰: 하나의 견적 내 여러 뷰
+            customClient: null,
             views: [
                 this.createView()
             ],
@@ -229,7 +228,7 @@ const DataManager = {
         this.save(this.KEYS.QUOTES, quotes);
     },
 
-    // 견적 파일 복제 (사이드바에 새 항목)
+    // 견적 파일 복제
     duplicateQuote(id) {
         const original = this.getQuote(id);
         if (!original) return null;
@@ -258,7 +257,7 @@ const DataManager = {
         return duplicate;
     },
 
-    // 뷰 복제 (멀티뷰용 - 같은 견적 내)
+    // 뷰 복제
     duplicateView(quoteId, viewId) {
         const quote = this.getQuote(quoteId);
         if (!quote) return null;
@@ -297,7 +296,7 @@ const DataManager = {
         };
     },
 
-    // 파트 복제 (신규)
+    // 파트 복제
     duplicatePart(quoteId, viewId, partId) {
         const quote = this.getQuote(quoteId);
         if (!quote) return null;
@@ -363,7 +362,6 @@ const DataManager = {
     },
 
     calculateQuoteTotal(quote, viewId = null) {
-        // 특정 뷰 또는 첫 번째 뷰 계산
         const view = viewId 
             ? quote.views.find(v => v.id === viewId) 
             : quote.views[0];
@@ -372,7 +370,6 @@ const DataManager = {
 
         const viewTotal = this.calculateViewTotal(view);
         
-        // 할인율: 핵심 고객사 또는 직접 입력
         let discountRate = 0;
         if (quote.clientId) {
             const client = this.getClient(quote.clientId);

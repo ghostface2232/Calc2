@@ -174,6 +174,14 @@ body {
     padding: 12px;
 }
 
+/* 사이드바 접혔을 때 설정 아이콘 크기 고정 */
+.sidebar.collapsed .sidebar-footer .btn-settings svg {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+}
+
 .sidebar.collapsed .sidebar-resize-handle {
     display: none;
 }
@@ -234,18 +242,36 @@ body {
     color: white;
 }
 
-.quote-color {
-    width: 24px;
-    height: 24px;
+/* 견적 썸네일 (아이콘) */
+.quote-icon {
+    width: 32px;
+    height: 32px;
     border-radius: var(--radius-sm);
     background: var(--color-primary-light);
-    border: 2px solid var(--color-primary);
+    border: 2px solid transparent;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: var(--transition);
 }
 
-.quote-list-item.active .quote-color {
+.quote-icon:hover {
+    border-color: var(--color-primary);
+    background: white;
+}
+
+.quote-list-item.active .quote-icon {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.quote-list-item.active .quote-icon:hover {
     background: rgba(255,255,255,0.3);
-    border-color: rgba(255,255,255,0.5);
 }
 
 .quote-list-item-name {
@@ -502,7 +528,6 @@ body {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 6px;
 }
 
 .part-name {
@@ -531,29 +556,11 @@ body {
     box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
-.btn-edit-name {
-    width: 24px;
-    height: 24px;
-    border: none;
-    background: transparent;
-    color: var(--color-text-light);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.6;
-    transition: var(--transition);
-}
-
-.btn-edit-name:hover {
-    opacity: 1;
-    color: var(--color-primary);
-}
-
-/* 헤더 액션 버튼 그룹 (복제, 삭제) */
+/* 헤더 액션 버튼 그룹 (수정, 복제, 삭제) */
 .part-header-actions {
     display: flex;
     gap: 2px;
+    align-items: center;
 }
 
 .part-action-btn {
@@ -573,6 +580,11 @@ body {
 .part-action-btn:hover {
     background: var(--bg-hover);
     color: var(--color-text);
+}
+
+.part-action-btn.active {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
 }
 
 .part-action-btn.danger:hover {
@@ -1233,6 +1245,39 @@ body {
     justify-content: flex-end;
     gap: 10px;
     margin-top: 24px;
+}
+
+/* ===== 아이콘 피커 ===== */
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.icon-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    background: var(--bg-input);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.icon-option:hover {
+    background: var(--bg-hover);
+    color: var(--color-text);
+}
+
+.icon-option.active {
+    background: var(--bg-card);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    box-shadow: var(--shadow-soft);
 }
 
 /* ===== 스크롤바 ===== */

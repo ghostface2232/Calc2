@@ -3,7 +3,24 @@
  */
 const App = {
     state: {
-        activeQuoteId: null
+        activeQuoteId: null,
+        targetQuoteIdForIcon: null // 아이콘 변경 대상 견적 ID
+    },
+
+    // 사용 가능한 아이콘 목록 (SVG path)
+    ICONS: {
+        text: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+        layout: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+        music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+        image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
+        file: '<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>',
+        chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+        graph: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+        code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+        bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+        star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+        heart: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
+        folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>'
     },
 
     init() {
@@ -16,6 +33,7 @@ const App = {
         this.renderMaterialList();
         this.renderClientList();
         this.renderOptionPresetList();
+        this.renderIconPicker();
     },
 
     // === 사이드바 초기화 ===
@@ -160,6 +178,35 @@ const App = {
             this.renderCalculator();
         }
         Modal.close('modal-quote-name');
+    },
+
+    // === 아이콘 피커 ===
+    openIconPicker(quoteId) {
+        this.state.targetQuoteIdForIcon = quoteId;
+        Modal.open('modal-icon-picker');
+    },
+
+    renderIconPicker() {
+        const container = document.getElementById('icon-picker-grid');
+        container.innerHTML = Object.entries(this.ICONS).map(([key, path]) => `
+            <div class="icon-option" onclick="App.setIcon('${key}')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    ${path}
+                </svg>
+            </div>
+        `).join('');
+    },
+
+    setIcon(iconKey) {
+        if (!this.state.targetQuoteIdForIcon) return;
+        const quote = DataManager.getQuote(this.state.targetQuoteIdForIcon);
+        if (quote) {
+            quote.icon = iconKey;
+            DataManager.saveQuote(quote);
+            this.renderQuoteList();
+        }
+        Modal.close('modal-icon-picker');
+        this.state.targetQuoteIdForIcon = null;
     },
 
     // === 고객사 설정 ===
@@ -509,11 +556,16 @@ const App = {
         
         container.innerHTML = quotes.map(quote => {
             const isActive = quote.id === this.state.activeQuoteId;
+            const iconContent = quote.icon 
+                ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${this.ICONS[quote.icon]}</svg>`
+                : quote.name.charAt(0);
             
             return `
                 <li class="quote-list-item ${isActive ? 'active' : ''}" 
                     onclick="App.selectQuote('${quote.id}')">
-                    <div class="quote-color"></div>
+                    <div class="quote-icon" onclick="event.stopPropagation(); App.openIconPicker('${quote.id}')">
+                        ${iconContent}
+                    </div>
                     <span class="quote-list-item-name">${quote.name}</span>
                     <div class="quote-list-item-actions">
                         <button class="btn-icon" onclick="event.stopPropagation(); App.editQuoteName('${quote.id}')" title="이름 변경">

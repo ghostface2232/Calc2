@@ -11,6 +11,7 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- 사이드바 -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-resize-handle" id="sidebar-resize"></div>
             
@@ -44,11 +45,13 @@
             </div>
         </aside>
 
+        <!-- 메인 컨텐츠 -->
         <main class="main-content">
             <div class="calculator-container" id="calculator-container"></div>
         </main>
     </div>
 
+    <!-- 설정 모달 -->
     <div class="modal-overlay" id="modal-settings">
         <div class="modal">
             <div class="modal-header">
@@ -100,6 +103,25 @@
         </div>
     </div>
 
+    <!-- 아이콘 선택 모달 -->
+    <div class="modal-overlay" id="modal-icon-picker">
+        <div class="modal modal-small">
+            <div class="modal-header">
+                <h2>아이콘 선택</h2>
+                <button class="btn-close" data-modal="modal-icon-picker">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="icon-grid" id="icon-picker-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 재료 편집 모달 -->
     <div class="modal-overlay" id="modal-material-edit">
         <div class="modal modal-small">
             <div class="modal-header">
@@ -135,6 +157,7 @@
         </div>
     </div>
 
+    <!-- 고객사 편집 모달 -->
     <div class="modal-overlay" id="modal-client-edit">
         <div class="modal modal-small">
             <div class="modal-header">
@@ -166,6 +189,7 @@
         </div>
     </div>
 
+    <!-- 옵션 프리셋 편집 모달 -->
     <div class="modal-overlay" id="modal-option-preset-edit">
         <div class="modal modal-small">
             <div class="modal-header">
@@ -211,6 +235,7 @@
         </div>
     </div>
 
+    <!-- 견적 이름 편집 모달 -->
     <div class="modal-overlay" id="modal-quote-name">
         <div class="modal modal-small">
             <div class="modal-header">
