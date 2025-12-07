@@ -339,6 +339,41 @@ body {
     flex-direction: column;
 }
 
+/* 메인 헤더 (Undo/Redo 버튼) */
+.main-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 10px 10px 10px;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-history {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.btn-history:hover:not(:disabled) {
+    background: var(--bg-card);
+    color: var(--color-text);
+    box-shadow: var(--shadow-soft);
+}
+
+.btn-history:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
 /* ===== 계산기 컨테이너 (멀티뷰) ===== */
 .calculator-container {
     display: flex;
@@ -391,10 +426,10 @@ body {
     color: var(--color-text);
     display: flex;
     align-items: center;
-    width: 100%; /* 타이틀 영역 확장 */
+    width: 100%;
 }
 
-/* 뷰 이름 인라인 수정 스타일 (수정됨: Medium, 커서) */
+/* 뷰 이름 인라인 수정 스타일 */
 .view-name-container {
     display: flex;
     align-items: center;
@@ -411,7 +446,7 @@ body {
 .view-name-input {
     font-family: var(--font-family);
     font-size: 16px;
-    font-weight: 500; /* Medium */
+    font-weight: 500;
     color: var(--color-text-secondary);
     border: 1px solid transparent;
     background: transparent;
@@ -488,8 +523,8 @@ body {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
+    background-position: right 10px center;
+    padding-right: 28px;
     cursor: pointer;
 }
 
@@ -801,7 +836,7 @@ body {
     color: white;
 }
 
-/* ===== 파트 푸터 (가격 표시, 신규) ===== */
+/* ===== 파트 푸터 (가격 표시) ===== */
 .part-footer {
     margin-top: auto;
     padding-top: 16px;
@@ -1300,6 +1335,41 @@ body {
     justify-content: flex-end;
     gap: 10px;
     margin-top: 24px;
+}
+
+/* ===== 데이터 관리 탭 스타일 ===== */
+.data-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px 4px;
+}
+
+.data-description {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+.data-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.data-buttons .btn-secondary {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    border: 1px solid var(--color-border);
+    background: var(--bg-card);
+}
+
+.data-buttons .btn-secondary:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-light);
 }
 
 /* ===== 아이콘 피커 ===== */

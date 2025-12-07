@@ -1,5 +1,7 @@
 /**
  * 계산기 UI 렌더링
+ * - 견적(Quote), 뷰(View), 파트(Part) 단위의 HTML 생성
+ * - 이벤트 핸들러는 App 객체의 메서드를 호출
  */
 const Calculator = {
     renderQuote(quote) {
@@ -9,10 +11,12 @@ const Calculator = {
         const isCustomClient = !quote.clientId && quote.customClient;
         const selectedClient = quote.clientId ? DataManager.getClient(quote.clientId) : null;
         
+        // 모든 뷰 렌더링
         let viewsHtml = quote.views.map((view, index) => 
             this.renderView(quote, view, index)
         ).join('');
 
+        // 비교 뷰 추가 버튼
         viewsHtml += `
             <button class="btn-add-view" onclick="App.addView('${quote.id}')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -34,6 +38,8 @@ const Calculator = {
         const selectedClient = quote.clientId ? DataManager.getClient(quote.clientId) : null;
         const canRemove = quote.views.length > 1;
 
+        // 뷰 이름 인라인 수정 UI
+        // 데이터가 없는 경우를 대비해 기본값 처리
         const viewName = view.name ? view.name : `뷰 ${viewIndex + 1}`;
         const viewLabel = `
             <div class="view-name-container">
@@ -46,6 +52,12 @@ const Calculator = {
                        onblur="this.readOnly = true;"
                        onchange="App.updateViewName('${quote.id}', '${view.id}', this.value)"
                        onkeypress="if(event.key === 'Enter') this.blur();">
+                <button class="btn-edit-name" onclick="const input = document.getElementById('view-name-${view.id}'); input.readOnly = false; input.focus(); input.select();" title="뷰 이름 수정" style="margin-left:2px;">
+                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </button>
             </div>
         `;
 
@@ -58,12 +70,6 @@ const Calculator = {
                             ${viewLabel}
                         </h2>
                         <div class="calculator-title-actions">
-                            <button class="btn-icon" onclick="const input = document.getElementById('view-name-${view.id}'); input.readOnly = false; input.focus(); input.select();" title="뷰 이름 수정">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
-                            </button>
                             ${canRemove ? `
                                 <button class="btn-icon danger" onclick="App.removeView('${quote.id}', '${view.id}')" title="이 뷰 삭제">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -154,6 +160,7 @@ const Calculator = {
         const materialNames = DataManager.getMaterialNames();
         const selectedMaterial = DataManager.getMaterial(part.materialId);
         
+        // 선택된 재료명의 컬러 목록 필터링
         let colorOptions = [];
         if (selectedMaterial) {
             colorOptions = DataManager.getColorsForMaterial(selectedMaterial.name);
@@ -248,6 +255,7 @@ const Calculator = {
                 ${part.options && part.options.length > 0 ? `
                     <div class="part-options-list">
                         ${part.options.map((opt, optIndex) => {
+                            // 해당 타입에 맞는 프리셋 필터링
                             const availablePresets = optionPresets.filter(p => p.type === opt.type);
                             return `
                             <div class="option-item">

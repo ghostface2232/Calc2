@@ -1,5 +1,10 @@
 /**
  * 데이터 관리 모듈
+ * - LocalStorage 관리
+ * - 데이터 무결성 보장 및 마이그레이션
+ * - Undo/Redo 상태 관리
+ * - 비용 계산 로직
+ * - 설정 Import/Export
  */
 const DataManager = {
     KEYS: {
@@ -10,7 +15,12 @@ const DataManager = {
         OPTIONS: 'quote_option_presets'
     },
 
-    // 재료 기본값
+    // 히스토리 관리 변수
+    history: [],
+    redoStack: [],
+    isHistoryAction: false, // Undo/Redo 실행 중 히스토리 저장을 방지하기 위한 플래그
+
+    // 기본 재료 데이터
     DEFAULT_MATERIALS: [
         { id: 'mat_1', name: '스탠다드 레진', color: '그레이', pricePerUnit: 500 },
         { id: 'mat_2', name: '스탠다드 레진', color: '화이트', pricePerUnit: 500 },
@@ -26,10 +36,12 @@ const DataManager = {
         sidebarCollapsed: false
     },
 
+    // 유니크 ID 생성
     generateId(prefix = 'id') {
         return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     },
 
+    // LocalStorage 로드
     load(key) {
         try {
             const data = localStorage.getItem(key);
@@ -40,6 +52,7 @@ const DataManager = {
         }
     },
 
+    // LocalStorage 저장
     save(key, data) {
         try {
             localStorage.setItem(key, JSON.stringify(data));
@@ -50,21 +63,57 @@ const DataManager = {
         }
     },
 
+    // 앱 초기화: 데이터가 없으면 기본값 생성
     init() {
-        if (!this.load(this.KEYS.MATERIALS)) this.save(this.KEYS.MATERIALS, this.DEFAULT_MATERIALS);
-        if (!this.load(this.KEYS.CLIENTS)) this.save(this.KEYS.CLIENTS, []);
-        if (!this.load(this.KEYS.QUOTES)) this.save(this.KEYS.QUOTES, []);
-        if (!this.load(this.KEYS.SETTINGS)) this.save(this.KEYS.SETTINGS, this.DEFAULT_SETTINGS);
-        if (!this.load(this.KEYS.OPTIONS)) this.save(this.KEYS.OPTIONS, []);
+        if (!this.load(this.KEYS.MATERIALS)) {
+            this.save(this.KEYS.MATERIALS, this.DEFAULT_MATERIALS);
+        }
+        if (!this.load(this.KEYS.CLIENTS)) {
+            this.save(this.KEYS.CLIENTS, []);
+        }
+        if (!this.load(this.KEYS.QUOTES)) {
+            this.save(this.KEYS.QUOTES, []);
+        }
+        if (!this.load(this.KEYS.SETTINGS)) {
+            this.save(this.KEYS.SETTINGS, this.DEFAULT_SETTINGS);
+        }
+        if (!this.load(this.KEYS.OPTIONS)) {
+            this.save(this.KEYS.OPTIONS, []);
+        }
     },
 
-    getSettings() { return this.load(this.KEYS.SETTINGS) || this.DEFAULT_SETTINGS; },
-    saveSettings(settings) { this.save(this.KEYS.SETTINGS, settings); },
+    // === 설정 (Settings) ===
+    getSettings() {
+        return this.load(this.KEYS.SETTINGS) || this.DEFAULT_SETTINGS;
+    },
 
-    getMaterials() { return this.load(this.KEYS.MATERIALS) || []; },
-    getMaterial(id) { return this.getMaterials().find(m => m.id === id); },
-    getMaterialNames() { return [...new Set(this.getMaterials().map(m => m.name))]; },
-    getColorsForMaterial(materialName) { return this.getMaterials().filter(m => m.name === materialName); },
+    saveSettings(settings) {
+        this.save(this.KEYS.SETTINGS, settings);
+    },
+
+    // === 재료 (Materials) ===
+    getMaterials() {
+        return this.load(this.KEYS.MATERIALS) || [];
+    },
+
+    getMaterial(id) {
+        return this.getMaterials().find(m => m.id === id);
+    },
+
+    getMaterialNames() {
+        const materials = this.getMaterials();
+        return [...new Set(materials.map(m => m.name))];
+    },
+
+    getColorsForMaterial(materialName) {
+        const materials = this.getMaterials();
+        return materials.filter(m => m.name === materialName);
+    },
+
+    findMaterial(name, color) {
+        return this.getMaterials().find(m => m.name === name && m.color === color);
+    },
+
     saveMaterial(material) {
         const materials = this.getMaterials();
         if (material.id) {
@@ -76,12 +125,21 @@ const DataManager = {
         }
         this.save(this.KEYS.MATERIALS, materials);
     },
+
     deleteMaterial(id) {
-        this.save(this.KEYS.MATERIALS, this.getMaterials().filter(m => m.id !== id));
+        const materials = this.getMaterials().filter(m => m.id !== id);
+        this.save(this.KEYS.MATERIALS, materials);
     },
 
-    getClients() { return this.load(this.KEYS.CLIENTS) || []; },
-    getClient(id) { return this.getClients().find(c => c.id === id); },
+    // === 고객사 (Clients) ===
+    getClients() {
+        return this.load(this.KEYS.CLIENTS) || [];
+    },
+
+    getClient(id) {
+        return this.getClients().find(c => c.id === id);
+    },
+
     saveClient(client) {
         const clients = this.getClients();
         if (client.id) {
@@ -93,12 +151,21 @@ const DataManager = {
         }
         this.save(this.KEYS.CLIENTS, clients);
     },
+
     deleteClient(id) {
-        this.save(this.KEYS.CLIENTS, this.getClients().filter(c => c.id !== id));
+        const clients = this.getClients().filter(c => c.id !== id);
+        this.save(this.KEYS.CLIENTS, clients);
     },
 
-    getOptionPresets() { return this.load(this.KEYS.OPTIONS) || []; },
-    getOptionPreset(id) { return this.getOptionPresets().find(o => o.id === id); },
+    // === 옵션 프리셋 (Option Presets) ===
+    getOptionPresets() {
+        return this.load(this.KEYS.OPTIONS) || [];
+    },
+
+    getOptionPreset(id) {
+        return this.getOptionPresets().find(o => o.id === id);
+    },
+
     saveOptionPreset(preset) {
         const presets = this.getOptionPresets();
         if (preset.id) {
@@ -110,26 +177,102 @@ const DataManager = {
         }
         this.save(this.KEYS.OPTIONS, presets);
     },
+
     deleteOptionPreset(id) {
-        this.save(this.KEYS.OPTIONS, this.getOptionPresets().filter(p => p.id !== id));
+        const presets = this.getOptionPresets().filter(p => p.id !== id);
+        this.save(this.KEYS.OPTIONS, presets);
     },
 
-    // === 견적 (데이터 무결성 검사 강화) ===
+    // === Undo / Redo Logic ===
+    captureState() {
+        if (this.isHistoryAction) return; // Undo/Redo 중이면 캡처하지 않음
+
+        const currentQuotes = this.getQuotes();
+        // 깊은 복사 후 저장
+        this.history.push(JSON.stringify(currentQuotes));
+        
+        // 새 동작이 발생하면 Redo 스택 초기화
+        this.redoStack = [];
+        
+        // 히스토리 최대 개수 제한 (메모리 관리, 예: 50개)
+        if (this.history.length > 50) {
+            this.history.shift();
+        }
+    },
+
+    undo() {
+        if (this.history.length === 0) return false;
+        
+        this.isHistoryAction = true;
+        
+        // 현재 상태를 Redo 스택에 저장
+        const currentState = this.getQuotes();
+        this.redoStack.push(JSON.stringify(currentState));
+        
+        // 이전 상태 복원
+        const previousState = JSON.parse(this.history.pop());
+        this.save(this.KEYS.QUOTES, previousState);
+        
+        this.isHistoryAction = false;
+        return true;
+    },
+
+    redo() {
+        if (this.redoStack.length === 0) return false;
+
+        this.isHistoryAction = true;
+
+        // 현재 상태를 Undo 히스토리에 저장
+        const currentState = this.getQuotes();
+        this.history.push(JSON.stringify(currentState));
+
+        // 다음 상태 복원
+        const nextState = JSON.parse(this.redoStack.pop());
+        this.save(this.KEYS.QUOTES, nextState);
+
+        this.isHistoryAction = false;
+        return true;
+    },
+
+    canUndo() {
+        return this.history.length > 0;
+    },
+
+    canRedo() {
+        return this.redoStack.length > 0;
+    },
+
+    // === 견적 관리 (Quotes) - 데이터 무결성 검사 포함 ===
     getQuotes() {
         const quotes = this.load(this.KEYS.QUOTES) || [];
-        // 데이터 마이그레이션: 구버전 데이터 호환성 보장
+        
+        // 데이터 마이그레이션: 구버전 데이터를 로드할 때 누락된 필드를 채워줍니다.
         return quotes.map(quote => {
-            if (!quote.views) quote.views = [this.createView()];
+            // views가 없으면 생성
+            if (!quote.views) {
+                quote.views = [this.createView()];
+            }
             
             quote.views.forEach((view, index) => {
-                if (!view.name) view.name = `뷰 ${index + 1}`;
-                if (!view.parts) view.parts = [];
+                // 뷰 이름 없으면 생성
+                if (!view.name) {
+                    view.name = `뷰 ${index + 1}`;
+                }
+                // parts 없으면 생성
+                if (!view.parts) {
+                    view.parts = [];
+                }
                 
-                // 파트 내부 옵션 배열 보장
+                // 파트 내부 구조 확인
                 view.parts.forEach(part => {
-                    if (!part.options) part.options = [];
+                    if (!part.options) {
+                        part.options = [];
+                    }
+                    // 옵션 가격 타입 확인
                     part.options.forEach(opt => {
-                        if (!opt.priceType) opt.priceType = 'fixed';
+                        if (!opt.priceType) {
+                            opt.priceType = 'fixed'; // 기본값
+                        }
                     });
                 });
             });
@@ -142,13 +285,16 @@ const DataManager = {
     },
 
     createQuote(name = '새 견적') {
+        this.captureState(); // 변경 전 상태 저장
         const quote = {
             id: this.generateId('quote'),
             name: name,
-            icon: null,
+            icon: null, // 아이콘 (null이면 문자 표시)
             clientId: null,
             customClient: null,
-            views: [this.createView('뷰 1')],
+            views: [
+                this.createView('뷰 1')
+            ],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
@@ -167,9 +313,11 @@ const DataManager = {
     },
 
     saveQuote(quote) {
+        this.captureState(); // 변경 전 상태 저장
         const quotes = this.getQuotes();
         const index = quotes.findIndex(q => q.id === quote.id);
         quote.updatedAt = new Date().toISOString();
+        
         if (index !== -1) {
             quotes[index] = quote;
         } else {
@@ -179,11 +327,14 @@ const DataManager = {
     },
 
     deleteQuote(id) {
+        this.captureState(); // 변경 전 상태 저장
         const quotes = this.getQuotes().filter(q => q.id !== id);
         this.save(this.KEYS.QUOTES, quotes);
     },
 
+    // 견적 파일 복제
     duplicateQuote(id) {
+        this.captureState(); // 변경 전 상태 저장
         const original = this.getQuote(id);
         if (!original) return null;
 
@@ -193,11 +344,15 @@ const DataManager = {
         duplicate.createdAt = new Date().toISOString();
         duplicate.updatedAt = new Date().toISOString();
         
+        // 뷰와 파트 ID 재생성 (참조 끊기)
         if (duplicate.views) {
             duplicate.views = duplicate.views.map(view => ({
                 ...view,
                 id: this.generateId('view'),
-                parts: view.parts.map(part => ({ ...part, id: this.generateId('part') }))
+                parts: view.parts.map(part => ({
+                    ...part,
+                    id: this.generateId('part')
+                }))
             }));
         }
 
@@ -207,27 +362,36 @@ const DataManager = {
         return duplicate;
     },
 
+    // 뷰 복제
     duplicateView(quoteId, viewId) {
+        this.captureState(); // 변경 전 상태 저장
         const quote = this.getQuote(quoteId);
         if (!quote) return null;
+
         const originalView = quote.views.find(v => v.id === viewId);
         if (!originalView) return null;
 
         const newView = JSON.parse(JSON.stringify(originalView));
         newView.id = this.generateId('view');
         newView.name = originalView.name + ' (복사본)';
-        newView.parts = newView.parts.map(part => ({ ...part, id: this.generateId('part') }));
+        newView.parts = newView.parts.map(part => ({
+            ...part,
+            id: this.generateId('part')
+        }));
 
         quote.views.push(newView);
-        this.saveQuote(quote);
+        // saveQuote를 호출하면 captureState가 중복되므로 직접 저장
+        this.save(this.KEYS.QUOTES, this.getQuotes());
         return newView;
     },
 
     removeView(quoteId, viewId) {
+        this.captureState(); // 변경 전 상태 저장
         const quote = this.getQuote(quoteId);
         if (!quote || quote.views.length <= 1) return false;
+        
         quote.views = quote.views.filter(v => v.id !== viewId);
-        this.saveQuote(quote);
+        this.save(this.KEYS.QUOTES, this.getQuotes());
         return true;
     },
 
@@ -241,11 +405,15 @@ const DataManager = {
         };
     },
 
+    // 파트 복제
     duplicatePart(quoteId, viewId, partId) {
+        this.captureState(); // 변경 전 상태 저장
         const quote = this.getQuote(quoteId);
         if (!quote) return null;
+
         const view = quote.views.find(v => v.id === viewId);
         if (!view) return null;
+
         const originalPart = view.parts.find(p => p.id === partId);
         if (!originalPart) return null;
 
@@ -253,14 +421,15 @@ const DataManager = {
         newPart.id = this.generateId('part');
         newPart.name = `${originalPart.name} - 복사본`;
 
+        // 원래 파트 바로 뒤에 삽입
         const index = view.parts.indexOf(originalPart);
         view.parts.splice(index + 1, 0, newPart);
 
-        this.saveQuote(quote);
+        this.save(this.KEYS.QUOTES, this.getQuotes());
         return newPart;
     },
 
-    // === 계산 (안전장치 추가) ===
+    // === 계산 로직 (상세 분할) ===
     calculatePartPrice(part) {
         const material = this.getMaterial(part.materialId);
         const pricePerUnit = material ? material.pricePerUnit : 500;
@@ -269,11 +438,12 @@ const DataManager = {
         let postProcessing = 0;
         let mechanism = 0;
         
-        // 옵션 배열이 없을 경우를 대비해 빈 배열 처리
+        // 옵션 배열 안전 처리
         const options = part.options || [];
         
         options.forEach(opt => {
             let price = opt.price || 0;
+            // 퍼센트 타입인 경우 프린팅 가격 기준 계산
             if (opt.priceType === 'percent') {
                 price = Math.floor(printingPrice * (opt.price / 100));
             }
@@ -296,7 +466,7 @@ const DataManager = {
     calculateViewTotal(view) {
         let subtotal = 0;
         const partSummary = [];
-        const parts = view.parts || []; // 안전장치
+        const parts = view.parts || []; // 안전 처리
         
         parts.forEach(part => {
             const partPrice = this.calculatePartPrice(part);
@@ -320,7 +490,6 @@ const DataManager = {
         const viewTotal = this.calculateViewTotal(view);
         
         let discountRate = 0;
-        // customClient 체크 강화
         if (quote.clientId) {
             const client = this.getClient(quote.clientId);
             discountRate = client ? client.discountRate : 0;
@@ -346,6 +515,44 @@ const DataManager = {
 
     formatCurrency(num) {
         return this.formatNumber(num) + '원';
+    },
+
+    // === 설정 Export / Import ===
+    exportConfiguration() {
+        const config = {
+            materials: this.getMaterials(),
+            clients: this.getClients(),
+            options: this.getOptionPresets(),
+            settings: this.getSettings(),
+            exportedAt: new Date().toISOString(),
+            version: '1.0'
+        };
+        return JSON.stringify(config, null, 2);
+    },
+
+    importConfiguration(jsonString) {
+        try {
+            const config = JSON.parse(jsonString);
+            
+            // 유효성 검사 및 저장
+            if (config.materials && Array.isArray(config.materials)) {
+                this.save(this.KEYS.MATERIALS, config.materials);
+            }
+            if (config.clients && Array.isArray(config.clients)) {
+                this.save(this.KEYS.CLIENTS, config.clients);
+            }
+            if (config.options && Array.isArray(config.options)) {
+                this.save(this.KEYS.OPTIONS, config.options);
+            }
+            if (config.settings && typeof config.settings === 'object') {
+                this.save(this.KEYS.SETTINGS, config.settings);
+            }
+            
+            return true;
+        } catch (e) {
+            console.error('Import failed:', e);
+            return false;
+        }
     }
 };
 

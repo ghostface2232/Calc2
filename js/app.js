@@ -7,6 +7,7 @@ const App = {
         targetQuoteIdForIcon: null
     },
 
+    // 사용 가능한 아이콘 목록 (SVG path)
     ICONS: {
         text: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
         layout: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
@@ -33,6 +34,7 @@ const App = {
         this.renderClientList();
         this.renderOptionPresetList();
         this.renderIconPicker();
+        this.updateHistoryButtons();
     },
 
     // === 사이드바 초기화 ===
@@ -89,7 +91,7 @@ const App = {
             if (!settings.sidebarCollapsed) {
                 sidebar.style.width = settings.sidebarWidth + 'px';
             } else {
-                sidebar.style.width = ''; 
+                sidebar.style.width = ''; // CSS override 허용
             }
             
             DataManager.saveSettings(settings);
@@ -119,6 +121,87 @@ const App = {
             e.preventDefault();
             this.saveQuoteName();
         });
+
+        // 데이터 Export/Import 이벤트
+        document.getElementById('btn-export-data').addEventListener('click', () => this.exportData());
+        document.getElementById('btn-import-trigger').addEventListener('click', () => {
+            document.getElementById('input-import-file').click();
+        });
+        document.getElementById('input-import-file').addEventListener('change', (e) => this.importData(e));
+
+        // Undo/Redo 이벤트
+        document.getElementById('btn-undo').addEventListener('click', () => this.performUndo());
+        document.getElementById('btn-redo').addEventListener('click', () => this.performRedo());
+
+        // 키보드 단축키
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Z (Undo)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                this.performUndo();
+            } 
+            // Ctrl+Y or Ctrl+Shift+Z (Redo)
+            else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
+                e.preventDefault();
+                this.performRedo();
+            }
+        });
+    },
+
+    // === Undo/Redo Logic ===
+    performUndo() {
+        if (DataManager.undo()) {
+            this.renderQuoteList();
+            this.renderCalculator();
+            this.updateHistoryButtons();
+        }
+    },
+
+    performRedo() {
+        if (DataManager.redo()) {
+            this.renderQuoteList();
+            this.renderCalculator();
+            this.updateHistoryButtons();
+        }
+    },
+
+    updateHistoryButtons() {
+        document.getElementById('btn-undo').disabled = !DataManager.canUndo();
+        document.getElementById('btn-redo').disabled = !DataManager.canRedo();
+    },
+
+    // === 데이터 Export/Import ===
+    exportData() {
+        const json = DataManager.exportConfiguration();
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const date = new Date().toISOString().split('T')[0];
+        
+        a.href = url;
+        a.download = `gluckcalc-config-${date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },
+
+    importData(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const success = DataManager.importConfiguration(event.target.result);
+            if (success) {
+                alert('설정이 성공적으로 불러와졌습니다. 페이지를 새로고침합니다.');
+                location.reload();
+            } else {
+                alert('파일을 불러오는 중 오류가 발생했습니다. 올바른 JSON 파일인지 확인해주세요.');
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = ''; // 초기화
     },
 
     // === 견적 관리 ===
@@ -129,6 +212,7 @@ const App = {
         this.state.activeQuoteId = quote.id;
         this.renderQuoteList();
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     selectQuote(quoteId) {
@@ -145,6 +229,7 @@ const App = {
         }
         this.renderQuoteList();
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     duplicateQuote(quoteId) {
@@ -153,6 +238,7 @@ const App = {
             this.state.activeQuoteId = duplicate.id;
             this.renderQuoteList();
             this.renderCalculator();
+            this.updateHistoryButtons();
         }
     },
 
@@ -175,11 +261,12 @@ const App = {
             DataManager.saveQuote(quote);
             this.renderQuoteList();
             this.renderCalculator();
+            this.updateHistoryButtons();
         }
         Modal.close('modal-quote-name');
     },
 
-    // === 뷰 이름 인라인 수정 (신규) ===
+    // === 뷰 이름 인라인 수정 ===
     updateViewName(quoteId, viewId, newName) {
         const quote = DataManager.getQuote(quoteId);
         if (!quote) return;
@@ -188,6 +275,7 @@ const App = {
             view.name = newName;
             DataManager.saveQuote(quote);
             this.renderCalculator();
+            this.updateHistoryButtons();
         }
     },
 
@@ -215,6 +303,7 @@ const App = {
             quote.icon = iconKey;
             DataManager.saveQuote(quote);
             this.renderQuoteList();
+            this.updateHistoryButtons();
         }
         Modal.close('modal-icon-picker');
         this.state.targetQuoteIdForIcon = null;
@@ -234,6 +323,7 @@ const App = {
         
         DataManager.saveQuote(quote);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     setQuoteClient(quoteId, clientId) {
@@ -243,6 +333,7 @@ const App = {
             quote.customClient = null;
             DataManager.saveQuote(quote);
             this.renderCalculator();
+            this.updateHistoryButtons();
         }
     },
 
@@ -258,6 +349,7 @@ const App = {
         
         DataManager.saveQuote(quote);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     // === 뷰 관리 ===
@@ -276,16 +368,19 @@ const App = {
         }
         
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     duplicateView(quoteId, viewId) {
         DataManager.duplicateView(quoteId, viewId);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     removeView(quoteId, viewId) {
         if (DataManager.removeView(quoteId, viewId)) {
             this.renderCalculator();
+            this.updateHistoryButtons();
         }
     },
 
@@ -301,11 +396,13 @@ const App = {
         view.parts.push(DataManager.createPart(`파트 ${num}`));
         DataManager.saveQuote(quote);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     duplicatePart(quoteId, viewId, partId) {
         if (DataManager.duplicatePart(quoteId, viewId, partId)) {
             this.renderCalculator();
+            this.updateHistoryButtons();
         }
     },
 
@@ -319,6 +416,7 @@ const App = {
         view.parts = view.parts.filter(p => p.id !== partId);
         DataManager.saveQuote(quote);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     updatePart(quoteId, viewId, partId, field, value) {
@@ -333,6 +431,7 @@ const App = {
             part[field] = value;
             DataManager.saveQuote(quote);
             this.renderCalculator();
+            this.updateHistoryButtons();
         }
     },
 
@@ -355,6 +454,7 @@ const App = {
         
         DataManager.saveQuote(quote);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     setPartMaterialColor(quoteId, viewId, partId, materialId) {
@@ -377,6 +477,7 @@ const App = {
         
         DataManager.saveQuote(quote);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     updateOption(quoteId, viewId, partId, optionIndex, field, value) {
@@ -392,6 +493,7 @@ const App = {
         part.options[optionIndex][field] = value;
         DataManager.saveQuote(quote);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     applyOptionPreset(quoteId, viewId, partId, optionIndex, presetId) {
@@ -413,6 +515,7 @@ const App = {
         
         DataManager.saveQuote(quote);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     removeOption(quoteId, viewId, partId, optionIndex) {
@@ -428,6 +531,7 @@ const App = {
         part.options.splice(optionIndex, 1);
         DataManager.saveQuote(quote);
         this.renderCalculator();
+        this.updateHistoryButtons();
     },
 
     // === 재료 관리 ===
