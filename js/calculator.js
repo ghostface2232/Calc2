@@ -13,7 +13,6 @@ const Calculator = {
             this.renderView(quote, view, index)
         ).join('');
 
-        // 뷰 추가 버튼
         viewsHtml += `
             <button class="btn-add-view" onclick="App.addView('${quote.id}')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -35,12 +34,15 @@ const Calculator = {
         const selectedClient = quote.clientId ? DataManager.getClient(quote.clientId) : null;
         const canRemove = quote.views.length > 1;
 
+        const viewLabel = quote.views.length > 1 
+            ? `<span style="margin-left:8px; font-weight:400; font-size:16px; color:var(--color-text-light);">| 뷰 ${viewIndex + 1}</span>` 
+            : '';
+
         return `
             <div class="calculator" data-quote-id="${quote.id}" data-view-id="${view.id}">
                 <div class="calculator-header">
                     <div class="calculator-title">
-                        <h2>${quote.name}</h2>
-                        ${quote.views.length > 1 ? `<span class="view-label">뷰 ${viewIndex + 1}</span>` : ''}
+                        <h2>${quote.name}${viewLabel}</h2>
                         <div class="calculator-title-actions">
                             <button class="btn-icon" onclick="App.editQuoteName('${quote.id}')" title="이름 수정">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -144,28 +146,45 @@ const Calculator = {
         const materialNames = DataManager.getMaterialNames();
         const selectedMaterial = DataManager.getMaterial(part.materialId);
         
-        // 선택된 재료명의 컬러 목록
         let colorOptions = [];
         if (selectedMaterial) {
             colorOptions = DataManager.getColorsForMaterial(selectedMaterial.name);
         }
 
-        // 옵션 프리셋 목록
         const optionPresets = DataManager.getOptionPresets();
 
         return `
             <div class="part-card" data-part-id="${part.id}">
                 <div class="part-header">
-                    <input type="text" 
-                           class="part-name" 
-                           value="${part.name}" 
-                           onchange="App.updatePart('${quoteId}', '${viewId}', '${part.id}', 'name', this.value)">
-                    <button class="part-delete" onclick="App.deletePart('${quoteId}', '${viewId}', '${part.id}')" title="삭제">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
+                    <div class="part-name-wrapper">
+                        <input type="text" 
+                               class="part-name" 
+                               value="${part.name}" 
+                               readonly
+                               onblur="this.readOnly = true;"
+                               onchange="App.updatePart('${quoteId}', '${viewId}', '${part.id}', 'name', this.value)">
+                        <button class="btn-edit-name" onclick="const input = this.previousElementSibling; input.readOnly = false; input.focus();" title="이름 수정">
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="part-header-actions">
+                        <button class="part-action-btn" onclick="App.duplicatePart('${quoteId}', '${viewId}', '${part.id}')" title="복제">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                        <button class="part-action-btn danger" onclick="App.deletePart('${quoteId}', '${viewId}', '${part.id}')" title="삭제">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="part-fields">
@@ -224,9 +243,7 @@ const Calculator = {
                 ${part.options && part.options.length > 0 ? `
                     <div class="part-options-list">
                         ${part.options.map((opt, optIndex) => {
-                            // 현재 옵션 타입과 맞는 프리셋 필터링
                             const availablePresets = optionPresets.filter(p => p.type === opt.type);
-                            
                             return `
                             <div class="option-item">
                                 <label>${opt.type === 'postProcessing' ? '후가공' : '옵션'}</label>

@@ -7,7 +7,7 @@ const DataManager = {
         CLIENTS: 'quote_clients',
         QUOTES: 'quote_quotes',
         SETTINGS: 'quote_settings',
-        OPTIONS: 'quote_option_presets' // 신규 추가
+        OPTIONS: 'quote_option_presets'
     },
 
     // 재료: 이름+컬러 조합별로 개별 단가
@@ -297,7 +297,29 @@ const DataManager = {
         };
     },
 
-    // === 계산 (수정: 옵션 퍼센트 계산) ===
+    // 파트 복제 (신규)
+    duplicatePart(quoteId, viewId, partId) {
+        const quote = this.getQuote(quoteId);
+        if (!quote) return null;
+
+        const view = quote.views.find(v => v.id === viewId);
+        if (!view) return null;
+
+        const originalPart = view.parts.find(p => p.id === partId);
+        if (!originalPart) return null;
+
+        const newPart = JSON.parse(JSON.stringify(originalPart));
+        newPart.id = this.generateId('part');
+        newPart.name = `${originalPart.name} - 복사본`;
+
+        const index = view.parts.indexOf(originalPart);
+        view.parts.splice(index + 1, 0, newPart);
+
+        this.saveQuote(quote);
+        return newPart;
+    },
+
+    // === 계산 ===
     calculatePartPrice(part) {
         const material = this.getMaterial(part.materialId);
         const pricePerUnit = material ? material.pricePerUnit : 500;

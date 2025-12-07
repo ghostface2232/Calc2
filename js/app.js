@@ -15,7 +15,7 @@ const App = {
         this.renderCalculator();
         this.renderMaterialList();
         this.renderClientList();
-        this.renderOptionPresetList(); // 신규
+        this.renderOptionPresetList();
     },
 
     // === 사이드바 초기화 ===
@@ -23,18 +23,15 @@ const App = {
         const sidebar = document.getElementById('sidebar');
         const settings = DataManager.getSettings();
         
-        // 저장된 너비 적용 (접힌 상태가 아닐 때만)
         if (!settings.sidebarCollapsed) {
             sidebar.style.width = settings.sidebarWidth + 'px';
             document.documentElement.style.setProperty('--sidebar-width', settings.sidebarWidth + 'px');
         }
         
-        // 접힘 상태 적용
         if (settings.sidebarCollapsed) {
             sidebar.classList.add('collapsed');
         }
         
-        // 리사이즈 핸들
         const resizeHandle = document.getElementById('sidebar-resize');
         let isResizing = false;
         
@@ -60,25 +57,22 @@ const App = {
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
                 
-                // 너비 저장
                 const settings = DataManager.getSettings();
                 settings.sidebarWidth = parseInt(sidebar.style.width);
                 DataManager.saveSettings(settings);
             }
         });
         
-        // 접기 버튼
         document.getElementById('btn-collapse').addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             
             const settings = DataManager.getSettings();
             settings.sidebarCollapsed = sidebar.classList.contains('collapsed');
             
-            // 접혔을 때 너비 속성 리셋 방지 (CSS로 제어하지만 JS 상태 동기화)
             if (!settings.sidebarCollapsed) {
                 sidebar.style.width = settings.sidebarWidth + 'px';
             } else {
-                sidebar.style.width = ''; // CSS override 허용
+                sidebar.style.width = ''; 
             }
             
             DataManager.saveSettings(settings);
@@ -90,7 +84,7 @@ const App = {
         document.getElementById('btn-settings').addEventListener('click', () => Modal.open('modal-settings'));
         document.getElementById('btn-add-material').addEventListener('click', () => this.openMaterialModal());
         document.getElementById('btn-add-client').addEventListener('click', () => this.openClientModal());
-        document.getElementById('btn-add-option-preset').addEventListener('click', () => this.openOptionPresetModal()); // 신규
+        document.getElementById('btn-add-option-preset').addEventListener('click', () => this.openOptionPresetModal());
         
         document.getElementById('form-material').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -100,7 +94,7 @@ const App = {
             e.preventDefault();
             this.saveClient();
         });
-        document.getElementById('form-option-preset').addEventListener('submit', (e) => { // 신규
+        document.getElementById('form-option-preset').addEventListener('submit', (e) => {
             e.preventDefault();
             this.saveOptionPreset();
         });
@@ -114,7 +108,7 @@ const App = {
     createNewQuote() {
         const quotes = DataManager.getQuotes();
         const num = quotes.length + 1;
-        const quote = DataManager.createQuote(`견적 ${String(num).padStart(2, '0')}`); // 한글명
+        const quote = DataManager.createQuote(`견적 ${String(num).padStart(2, '0')}`);
         this.state.activeQuoteId = quote.id;
         this.renderQuoteList();
         this.renderCalculator();
@@ -136,7 +130,6 @@ const App = {
         this.renderCalculator();
     },
 
-    // 견적 파일 복제 (사이드바에 새 항목)
     duplicateQuote(quoteId) {
         const duplicate = DataManager.duplicateQuote(quoteId);
         if (duplicate) {
@@ -209,12 +202,11 @@ const App = {
         this.renderCalculator();
     },
 
-    // === 뷰 관리 (멀티뷰) ===
+    // === 뷰 관리 ===
     addView(quoteId) {
         const quote = DataManager.getQuote(quoteId);
         if (!quote) return;
         
-        // 마지막 뷰를 복제
         const lastView = quote.views[quote.views.length - 1];
         if (lastView) {
             DataManager.duplicateView(quoteId, lastView.id);
@@ -246,9 +238,15 @@ const App = {
         if (!view) return;
         
         const num = view.parts.length + 1;
-        view.parts.push(DataManager.createPart(`Part ${num}`));
+        view.parts.push(DataManager.createPart(`파트 ${num}`));
         DataManager.saveQuote(quote);
         this.renderCalculator();
+    },
+
+    duplicatePart(quoteId, viewId, partId) {
+        if (DataManager.duplicatePart(quoteId, viewId, partId)) {
+            this.renderCalculator();
+        }
     },
 
     deletePart(quoteId, viewId, partId) {
@@ -278,7 +276,6 @@ const App = {
         }
     },
 
-    // 재료명 선택 시 (컬러 드롭다운 갱신)
     setPartMaterialName(quoteId, viewId, partId, materialName) {
         const quote = DataManager.getQuote(quoteId);
         if (!quote) return;
@@ -289,7 +286,6 @@ const App = {
         const part = view.parts.find(p => p.id === partId);
         if (!part) return;
         
-        // 해당 재료명의 첫 번째 컬러로 설정
         const colors = DataManager.getColorsForMaterial(materialName);
         if (colors.length > 0) {
             part.materialId = colors[0].id;
@@ -301,7 +297,6 @@ const App = {
         this.renderCalculator();
     },
 
-    // 컬러 선택 시
     setPartMaterialColor(quoteId, viewId, partId, materialId) {
         this.updatePart(quoteId, viewId, partId, 'materialId', materialId || null);
     },
@@ -318,7 +313,6 @@ const App = {
         if (!part) return;
         
         if (!part.options) part.options = [];
-        // type: 'postProcessing' or 'mechanism'
         part.options.push({ type, name: '', price: 0, priceType: 'fixed' });
         
         DataManager.saveQuote(quote);
@@ -340,7 +334,6 @@ const App = {
         this.renderCalculator();
     },
 
-    // 옵션 프리셋 적용 (신규)
     applyOptionPreset(quoteId, viewId, partId, optionIndex, presetId) {
         const quote = DataManager.getQuote(quoteId);
         if (!quote) return;
@@ -461,7 +454,7 @@ const App = {
         this.renderCalculator();
     },
 
-    // === 옵션 프리셋 관리 (신규) ===
+    // === 옵션 프리셋 관리 ===
     openOptionPresetModal(presetId = null) {
         const form = document.getElementById('form-option-preset');
         form.reset();
@@ -523,6 +516,12 @@ const App = {
                     <div class="quote-color"></div>
                     <span class="quote-list-item-name">${quote.name}</span>
                     <div class="quote-list-item-actions">
+                        <button class="btn-icon" onclick="event.stopPropagation(); App.editQuoteName('${quote.id}')" title="이름 변경">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
                         <button class="btn-icon" onclick="event.stopPropagation(); App.duplicateQuote('${quote.id}')" title="견적 복제">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2"></rect>
@@ -613,7 +612,6 @@ const App = {
         `).join('');
     },
 
-    // 옵션 프리셋 리스트 렌더링 (신규)
     renderOptionPresetList() {
         const container = document.getElementById('option-preset-list');
         const presets = DataManager.getOptionPresets();
