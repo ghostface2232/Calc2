@@ -4,7 +4,10 @@
 const App = {
     state: {
         activeQuoteId: null,
-        // targetQuoteIdForIcon 삭제됨 (아이콘 커스텀 기능 제거)
+        sortBy: 'newest',        // [추가] 정렬 기준 (newest, oldest, name)
+        filterTagId: '',         // [추가] 태그 필터 (없으면 빈 문자열)
+        isSelectionMode: false,  // [추가] 다중 선택 모드 여부
+        selectedQuoteIds: new Set() // [추가] 선택된 견적 ID 집합
     },
 
     // ICONS 객체 삭제됨
@@ -126,10 +129,24 @@ const App = {
     },
 
     // === 렌더링 위임 ===
-    renderQuoteList() {
-        const quotes = DataManager.getQuotes();
+renderQuoteList() {
+        let quotes = DataManager.getQuotes();
+        
+        if (this.state.filterTagId) {
+            quotes = quotes.filter(q => q.tagId === this.state.filterTagId);
+        }
+
+        quotes.sort((a, b) => {
+            if (this.state.sortBy === 'name') return a.name.localeCompare(b.name);
+            if (this.state.sortBy === 'oldest') return new Date(a.createdAt) - new Date(b.createdAt);
+            return new Date(b.createdAt) - new Date(a.createdAt); // 기본: newest
+        });
+
         if (Calculator.renderQuoteList) {
-            Calculator.renderQuoteList(quotes, this.state.activeQuoteId);
+            Calculator.renderQuoteList(quotes, this.state.activeQuoteId, {
+                isSelectionMode: this.state.isSelectionMode,
+                selectedIds: this.state.selectedQuoteIds
+            });
         }
     },
 
@@ -328,6 +345,143 @@ importData(e) {
         Modal.close('modal-quote-name');
     },
 
+    setSortOrder(order) {
+        this.state.sortBy = order;
+        this.renderQuoteList();
+    },
+
+    setFilterTag(tagId) {
+        this.state.filterTagId = tagId;
+        this.renderQuoteList();
+    },
+
+    toggleSelectionMode() {
+        this.state.isSelectionMode = !this.state.isSelectionMode;
+        this.state.selectedQuoteIds.clear();
+        this.renderQuoteList();
+        
+        const delBtn = document.getElementById('btn-delete-selected');
+        if (delBtn) delBtn.style.display = this.state.isSelectionMode ? 'block' : 'none'; // block이나 flex로 조정
+    },
+
+    toggleQuoteSelection(id) {
+        if (this.state.selectedQuoteIds.has(id)) this.state.selectedQuoteIds.delete(id);
+        else this.state.selectedQuoteIds.add(id);
+        this.renderQuoteList();
+    },
+
+    deleteSelectedQuotes() {
+        if (!confirm(`${this.state.selectedQuoteIds.size}개의 견적을 삭제하시겠습니까?`)) return;
+        
+        DataManager.captureState(this.state.activeQuoteId);
+        this.state.selectedQuoteIds.forEach(id => {
+            DataManager.deleteQuote(id);
+            if (this.state.activeQuoteId === id) this.state.activeQuoteId = null;
+        });
+        
+        this.toggleSelectionMode(); 
+        this.renderCalculator();
+        this.updateHistoryButtons();
+    },
+
+    openTagModal(quoteId) {
+        const quote = DataManager.getQuote(quoteId);
+        if (!quote) return;
+        
+        // 모달에 타겟 견적 ID 저장
+        const modal = document.getElementById('modal-tag-manager');
+        if (modal) modal.dataset.targetQuoteId = quoteId;
+        
+        this.renderTagListInModal();
+        Modal.open('modal-tag-manager');
+    },
+
+    renderTagListInModal() {
+        const listEl = document.getElementById('tag-manager-list');
+        if (!listEl) return;
+        
+        const tags = DataManager.getTags();
+        const targetId = document.getElementById('modal-tag-manager').dataset.targetQuoteId;
+        const quote = DataManager.getQuote(targetId);
+
+        listEl.innerHTML = tags.map(tag => `
+            <li class="tag-item">
+                <div class="tag-preview" style="background-color: ${tag.color}">${tag.name}</div>
+                <div class="tag-actions">
+                    <button class="btn-pill small ${quote && quote.tagId === tag.id ? 'primary' : ''}" 
+                            onclick="App.assignTag('${tag.id}')">
+                        ${quote && quote.tagId === tag.id ? '선택됨' : '선택'}
+                    </button>
+                    <button class="btn-icon" onclick="App.editTag('${tag.id}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="App.deleteTag('${tag.id}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </li>
+        `).join('');
+    },
+
+    saveNewTag() {
+        const nameInput = document.getElementById('new-tag-name');
+        const colorInput = document.getElementById('new-tag-color');
+        const name = nameInput.value.trim();
+        const color = colorInput.value;
+        
+        if (!name) return;
+        
+        DataManager.saveTag({ id: null, name, color });
+        nameInput.value = ''; 
+        
+        this.renderTagListInModal();
+        this.updateSidebarTagFilter(); // 필터 목록 갱신
+        this.renderQuoteList(); // 리스트 갱신 (색상 등 반영)
+    },
+
+    assignTag(tagId) {
+        const quoteId = document.getElementById('modal-tag-manager').dataset.targetQuoteId;
+        const quote = DataManager.getQuote(quoteId);
+        if (quote) {
+            quote.tagId = tagId;
+            DataManager.saveQuote(quote);
+            this.renderQuoteList();
+            this.renderTagListInModal();
+        }
+    },
+    
+    deleteTag(tagId) {
+        if(!confirm('태그를 삭제하시겠습니까? 해당 태그를 사용하는 견적에서 태그가 해제됩니다.')) return;
+        DataManager.deleteTag(tagId);
+        this.renderTagListInModal();
+        this.updateSidebarTagFilter();
+        this.renderQuoteList();
+    },
+
+    editTag(tagId) {
+        const tag = DataManager.getTag(tagId);
+        if(!tag) return;
+        const newName = prompt('태그 이름 수정:', tag.name);
+        if(newName) {
+            tag.name = newName.trim();
+            DataManager.saveTag(tag);
+            this.renderTagListInModal();
+            this.updateSidebarTagFilter();
+            this.renderQuoteList();
+        }
+    },
+
+    updateSidebarTagFilter() {
+        const select = document.getElementById('sidebar-tag-filter');
+        if (!select) return;
+        const currentVal = select.value;
+        const tags = DataManager.getTags();
+        
+        select.innerHTML = '<option value="">모든 태그</option>' + 
+            tags.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+        
+        select.value = currentVal; // 선택 상태 유지
+    },
     updateViewName(quoteId, viewId, newName) {
         DataManager.captureState(this.state.activeQuoteId);
         const quote = DataManager.getQuote(quoteId);
@@ -340,8 +494,6 @@ importData(e) {
             this.updateHistoryButtons();
         }
     },
-
-    // [버그 수정 1] 아이콘 피커 관련 메서드 삭제 (openIconPicker, renderIconPicker, setIcon)
 
     setClientType(quoteId, type) {
         DataManager.captureState(this.state.activeQuoteId);
