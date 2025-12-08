@@ -4,23 +4,10 @@
 const App = {
     state: {
         activeQuoteId: null,
-        targetQuoteIdForIcon: null
+        // targetQuoteIdForIcon 삭제됨 (아이콘 커스텀 기능 제거)
     },
 
-    ICONS: {
-        text: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
-        layout: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
-        music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
-        image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
-        file: '<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>',
-        chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
-        graph: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
-        code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
-        bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
-        star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
-        heart: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
-        folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>'
-    },
+    // ICONS 객체 삭제됨
 
     init() {
         Modal.init();
@@ -45,7 +32,7 @@ const App = {
         this.renderMaterialList();
         this.renderClientList();
         this.renderOptionPresetList();
-        this.renderIconPicker();
+        // renderIconPicker 호출 제거
     },
 
     initSidebar() {
@@ -140,6 +127,19 @@ const App = {
         const container = document.getElementById('calculator-container');
         if (!container) return;
 
+        // [버그 수정 2] 렌더링 전 스크롤 위치 저장
+        // 각 뷰(calculator-body)의 스크롤 위치를 뷰 ID를 키로 저장
+        const scrollPositions = new Map();
+        container.querySelectorAll('.calculator').forEach(el => {
+            const viewId = el.dataset.viewId;
+            const body = el.querySelector('.calculator-body');
+            if (viewId && body) {
+                scrollPositions.set(viewId, body.scrollTop);
+            }
+        });
+        // 메인 컨테이너(가로 스크롤) 위치 저장
+        const containerScrollLeft = container.scrollLeft;
+
         if (!this.state.activeQuoteId) {
             container.innerHTML = Calculator.renderEmpty();
             return;
@@ -153,6 +153,19 @@ const App = {
         }
 
         container.innerHTML = Calculator.renderQuote(quote);
+
+        // [버그 수정 2] 렌더링 후 스크롤 위치 복구
+        container.querySelectorAll('.calculator').forEach(el => {
+            const viewId = el.dataset.viewId;
+            const body = el.querySelector('.calculator-body');
+            if (viewId && body && scrollPositions.has(viewId)) {
+                body.scrollTop = scrollPositions.get(viewId);
+            }
+        });
+        // 메인 컨테이너 스크롤 복구
+        if (containerScrollLeft > 0) {
+            container.scrollLeft = containerScrollLeft;
+        }
     },
 
     renderMaterialList() {
@@ -301,46 +314,12 @@ const App = {
         if (view) {
             view.name = newName;
             DataManager.saveQuote(quote);
-            // 뷰 이름 변경 시 사이드바나 다른 곳에 영향이 없으므로 계산기만 다시 그림
-            // 하지만 안전하게 하기 위해 renderCalculator 호출
-            // 입력 포커스 유지를 위해 전체 리렌더링보다는 부분 업데이트가 좋지만,
-            // 현재 구조상 전체 렌더링을 하되 onblur 이벤트로 처리 중이므로 괜찮음
             this.renderCalculator(); 
             this.updateHistoryButtons();
         }
     },
 
-    openIconPicker(quoteId) {
-        this.state.targetQuoteIdForIcon = quoteId;
-        Modal.open('modal-icon-picker');
-    },
-
-    renderIconPicker() {
-        const container = document.getElementById('icon-picker-grid');
-        if (!container) return;
-        
-        container.innerHTML = Object.entries(this.ICONS).map(([key, path]) => `
-            <div class="icon-option" onclick="App.setIcon('${key}')">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    ${path}
-                </svg>
-            </div>
-        `).join('');
-    },
-
-    setIcon(iconKey) {
-        if (!this.state.targetQuoteIdForIcon) return;
-        DataManager.captureState(this.state.activeQuoteId);
-        const quote = DataManager.getQuote(this.state.targetQuoteIdForIcon);
-        if (quote) {
-            quote.icon = iconKey;
-            DataManager.saveQuote(quote);
-            this.renderQuoteList();
-            this.updateHistoryButtons();
-        }
-        Modal.close('modal-icon-picker');
-        this.state.targetQuoteIdForIcon = null;
-    },
+    // [버그 수정 1] 아이콘 피커 관련 메서드 삭제 (openIconPicker, renderIconPicker, setIcon)
 
     setClientType(quoteId, type) {
         DataManager.captureState(this.state.activeQuoteId);
