@@ -1689,3 +1689,107 @@ body {
 .sidebar.collapsed #btn-edit-mode {
     display: none !important;
 }
+/* =========================================
+   [수정] 사이드바 및 레이아웃 정렬 통일 (20px 기준)
+   ========================================= */
+
+/* 사이드바 헤더와 동일하게 가로 패딩 20px로 통일 */
+.sidebar-header {
+    padding: 24px 20px 16px; 
+}
+
+.sidebar-toolbar-container {
+    padding: 0 20px 12px; 
+}
+
+.quote-list {
+    padding: 0 10px; /* 리스트 아이템 내부 패딩과 합쳐져서 시각적으로 20px 라인에 맞도록 조정 */
+}
+
+/* 리스트 아이템 내부 패딩 조정으로 텍스트 시작점 정렬 */
+.quote-list-item {
+    padding: 12px 10px; 
+    margin-bottom: 4px;
+}
+
+/* 선택 삭제 버튼 정렬 */
+.btn-danger-block {
+    width: calc(100% - 40px); /* 좌우 20px씩 여백 */
+    margin: 0 20px 8px;
+}
+
+/* 사이드바 푸터 정렬 */
+.sidebar-footer {
+    padding: 16px 20px; 
+}
+
+/* =========================================
+   [수정] 태그 모달 리스트 개선 (체크박스 방식)
+   ========================================= */
+
+.tag-manager-list {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    /* overflow: hidden;  <-- 이 줄을 삭제하여 스크롤이 가능하게 함 */
+    overflow-y: auto;     /* 세로 스크롤 허용 */
+    max-height: 300px;    /* 최대 높이 제한 */
+}
+
+.tag-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px; /* 패딩 증가 */
+    border-bottom: 1px solid var(--bg-input);
+    background: var(--bg-card);
+    cursor: pointer; /* 클릭 가능 커서 */
+    transition: background 0.2s;
+}
+
+.tag-item:hover {
+    background: var(--bg-hover);
+}
+
+.tag-item:last-child {
+    border-bottom: none;
+}
+
+/* 태그 정보 그룹 (체크박스 + 태그프리뷰) */
+.tag-info-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 체크 아이콘 (선택 시에만 보임) */
+.tag-check-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0; /* 기본 숨김 */
+    transition: opacity 0.2s;
+}
+
+.tag-check-icon.visible {
+    opacity: 1; /* 선택됨 */
+}
+
+/* 태그 프리뷰 스타일 보정 */
+.tag-preview {
+    padding: 4px 12px;
+    font-size: 13px;
+}
+
+/* 우측 수정/삭제 버튼 그룹 */
+.tag-actions {
+    opacity: 0.4; /* 평소엔 흐리게 */
+    transition: opacity 0.2s;
+}
+
+.tag-item:hover .tag-actions {
+    opacity: 1; /* 호버 시 선명하게 */
+}
