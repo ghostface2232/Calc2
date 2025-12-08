@@ -16,14 +16,17 @@ const Calculator = {
         ).join('');
 
         // 비교 뷰 추가 버튼
+        // [수정 3] 수직 중앙 정렬을 위해 래퍼 div를 추가
         viewsHtml += `
-            <button class="btn-add-view" onclick="App.addView('${quote.id}')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <span>비교 뷰 추가</span>
-            </button>
+            <div class="add-view-container">
+                <button class="btn-add-view" onclick="App.addView('${quote.id}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>비교 뷰 추가</span>
+                </button>
+            </div>
         `;
 
         return viewsHtml;
