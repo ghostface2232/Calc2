@@ -38,9 +38,6 @@ const Calculator = {
         const selectedClient = quote.clientId ? DataManager.getClient(quote.clientId) : null;
         const canRemove = quote.views.length > 1;
 
-        // [UX 개선] 뷰 이름 인라인 수정
-        // - 평소에는 pointer-events: none으로 텍스트처럼 동작
-        // - 버튼 클릭 시 pointer-events: auto 및 포커스, 입력 가능
         const viewName = view.name ? view.name : `뷰 ${viewIndex + 1}`;
         const viewLabel = `
             <div class="view-name-container">
@@ -338,16 +335,13 @@ const Calculator = {
         }
 
         listEl.innerHTML = quotes.map(quote => {
-            const iconSvg = (window.App && App.ICONS && quote.icon && App.ICONS[quote.icon]) 
-                ? App.ICONS[quote.icon] 
-                : '<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>';
+            // [버그 수정 1] 아이콘 SVG 대신 첫 글자 추출
+            const firstChar = quote.name ? quote.name.charAt(0).toUpperCase() : '?';
 
             return `
             <li class="quote-list-item ${quote.id === activeQuoteId ? 'active' : ''}" onclick="App.selectQuote('${quote.id}')">
-                <div class="quote-icon" onclick="event.stopPropagation(); App.openIconPicker('${quote.id}')">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        ${iconSvg}
-                    </svg>
+                <div class="quote-icon">
+                    ${firstChar}
                 </div>
                 <div class="quote-list-item-name">${quote.name}</div>
                 <div class="quote-list-item-actions">
