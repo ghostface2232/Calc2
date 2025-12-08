@@ -35,7 +35,7 @@ const App = {
         this.renderMaterialList();
         this.renderClientList();
         this.renderOptionPresetList();
-        // renderIconPicker 호출 제거
+        this.updateSidebarTagFilter();
     },
 
     initSidebar() {
