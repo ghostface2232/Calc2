@@ -324,7 +324,7 @@ const Calculator = {
         `;
     },
 
-    // ==========================================
+// ==========================================
     // 2. 사이드바 및 설정 리스트 렌더링
     // ==========================================
 
@@ -338,7 +338,7 @@ const Calculator = {
         }
 
         listEl.innerHTML = quotes.map(quote => {
-            // [수정] 태그 데이터 가져오기 및 3글자 자르기
+            // 태그 데이터 가져오기 및 3글자 자르기
             const tag = DataManager.getTag(quote.tagId);
             const tagName = tag ? (tag.name.length > 3 ? tag.name.substring(0, 3) : tag.name) : '+';
             const tagColor = tag ? tag.color : '#e2e8f0';
@@ -365,12 +365,27 @@ const Calculator = {
                 
                 <div class="quote-list-item-actions">
                     <button class="btn-icon" onclick="event.stopPropagation(); App.editQuoteName('${quote.id}')" title="이름 변경">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
                     </button>
-                    </div>
+                    <button class="btn-icon" onclick="event.stopPropagation(); App.duplicateQuote('${quote.id}')" title="복제">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="event.stopPropagation(); App.deleteQuote('${quote.id}')" title="삭제">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                             <line x1="18" y1="6" x2="6" y2="18"></line>
+                             <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
             </li>
         `}).join('');
     },
-
     renderMaterialList(materials) {
         const listEl = document.getElementById('material-list');
         if (!listEl) return;
