@@ -397,14 +397,29 @@ importData(e) {
     },
 
     renderTagListInModal() {
+            renderTagListInModal() {
         const listEl = document.getElementById('tag-manager-list');
         if (!listEl) return;
         
         const tags = DataManager.getTags();
         const targetId = document.getElementById('modal-tag-manager').dataset.targetQuoteId;
         const quote = DataManager.getQuote(targetId);
+        const isNoTagSelected = quote && !quote.tagId;
+        const noTagItem = `
+            <li class="tag-item" onclick="App.assignTag(null)">
+                <div class="tag-info-group">
+                    <div class="tag-check-icon ${isNoTagSelected ? 'visible' : ''}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="tag-preview" style="background-color: #cbd5e0; color: #4a5568;">태그 없음</div>
+                </div>
+                <div class="tag-actions"></div>
+            </li>
+        `;
 
-        listEl.innerHTML = tags.map(tag => {
+        const tagItems = tags.map(tag => {
             const isSelected = quote && quote.tagId === tag.id;
             
             return `
@@ -434,7 +449,10 @@ importData(e) {
                 </div>
             </li>
         `}).join('');
+
+        listEl.innerHTML = noTagItem + tagItems;
     },
+
 
     saveNewTag() {
         const nameInput = document.getElementById('new-tag-name');
