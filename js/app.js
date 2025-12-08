@@ -38,10 +38,12 @@ const App = {
     initSidebar() {
         const sidebar = document.getElementById('sidebar');
         const settings = DataManager.getSettings();
+        // [수정 4] sidebarWidth를 Export되는 settings에서 분리 (로컬 설정 사용)
+        const sidebarWidth = DataManager.getLocalSetting('sidebarWidth') || settings.sidebarWidth;
         
         if (!settings.sidebarCollapsed) {
-            sidebar.style.width = settings.sidebarWidth + 'px';
-            document.documentElement.style.setProperty('--sidebar-width', settings.sidebarWidth + 'px');
+            sidebar.style.width = sidebarWidth + 'px';
+            document.documentElement.style.setProperty('--sidebar-width', sidebarWidth + 'px');
         } else {
             sidebar.classList.add('collapsed');
         }
@@ -70,8 +72,12 @@ const App = {
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
                 const settings = DataManager.getSettings();
-                settings.sidebarWidth = parseInt(sidebar.style.width);
-                DataManager.saveSettings(settings);
+                // settings.sidebarWidth = parseInt(sidebar.style.width); // [수정 4] Export 방지를 위해 해당 라인 제거
+                
+                // [수정 4] sidebarWidth를 Export되지 않는 로컬 설정으로 저장
+                DataManager.saveLocalSetting('sidebarWidth', parseInt(sidebar.style.width)); 
+                
+                DataManager.saveSettings(settings); // settings는 sidebarCollapsed 등만 포함
             }
         });
         
@@ -79,7 +85,11 @@ const App = {
             sidebar.classList.toggle('collapsed');
             const settings = DataManager.getSettings();
             settings.sidebarCollapsed = sidebar.classList.contains('collapsed');
-            if (!settings.sidebarCollapsed) sidebar.style.width = settings.sidebarWidth + 'px';
+
+            // [수정 4] 로컬 설정에서 sidebarWidth를 가져와 사용
+            const currentSidebarWidth = DataManager.getLocalSetting('sidebarWidth') || 280;
+            
+            if (!settings.sidebarCollapsed) sidebar.style.width = currentSidebarWidth + 'px'; 
             else sidebar.style.width = ''; 
             DataManager.saveSettings(settings);
         });
