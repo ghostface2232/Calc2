@@ -1552,3 +1552,133 @@ body {
     font-weight: bold;
     cursor: pointer;
 }
+/* [수정] 사이드바 헤더 액션 버튼 공통 스타일 */
+.btn-header-action {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.btn-header-action:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* 사이드바 접힘 상태일 때 아이콘 회전 (기존 btn-collapse 대응) */
+.sidebar.collapsed .btn-header-action#btn-collapse {
+    transform: rotate(180deg);
+}
+
+/* [추가] 사이드바 섹션 타이틀 및 툴바 컨테이너 */
+.sidebar-toolbar-container {
+    padding: 0 16px 12px; /* 좌우 패딩 헤더와 맞춤 */
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 8px;
+}
+
+.sidebar-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+/* 기존 .sidebar-toolbar 수정 (패딩/보더 제거 후 컨테이너 내부로 이동) */
+.sidebar-toolbar {
+    display: flex;
+    gap: 6px;
+    padding: 0; 
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* [수정] 태그 모달 관련 스타일 */
+.tag-manager-list {
+    list-style: none;
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--bg-input);
+    margin-bottom: 12px;
+}
+
+/* 신규 태그 만들기 버튼 */
+.btn-create-tag-toggle {
+    width: 100%;
+    padding: 10px;
+    background: var(--bg-card);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-create-tag-toggle:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+/* 신규 태그 폼 컨테이너 */
+.new-tag-form-container {
+    background: var(--bg-input);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.new-tag-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+    border-bottom: none; /* 기존 스타일 덮어쓰기 */
+    padding-bottom: 0;   /* 기존 스타일 덮어쓰기 */
+}
+
+.new-tag-form input[type="color"] {
+    width: 36px;
+    height: 36px;
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.new-tag-form input[type="text"] {
+    flex: 1;
+    background: var(--bg-card);
+}
+
+.new-tag-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* 버튼 작은 사이즈 */
+.btn-primary.small, .btn-secondary.small {
+    padding: 6px 12px;
+    font-size: 12px;
+}
