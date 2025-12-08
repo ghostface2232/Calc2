@@ -1685,6 +1685,7 @@ body {
 
 /* 사이드바 접힘(Collapsed) 상태일 때 숨김 */
 .sidebar.collapsed .sidebar-toolbar-container,
-.sidebar.collapsed #btn-delete-selected {
+.sidebar.collapsed #btn-delete-selected,
+.sidebar.collapsed #btn-edit-mode {
     display: none !important;
 }
