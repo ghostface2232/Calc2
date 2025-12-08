@@ -396,15 +396,16 @@ importData(e) {
         Modal.open('modal-tag-manager');
     },
 
-    renderTagListInModal() {
-            renderTagListInModal() {
+        renderTagListInModal() {
         const listEl = document.getElementById('tag-manager-list');
         if (!listEl) return;
         
         const tags = DataManager.getTags();
         const targetId = document.getElementById('modal-tag-manager').dataset.targetQuoteId;
         const quote = DataManager.getQuote(targetId);
+
         const isNoTagSelected = quote && !quote.tagId;
+        
         const noTagItem = `
             <li class="tag-item" onclick="App.assignTag(null)">
                 <div class="tag-info-group">
