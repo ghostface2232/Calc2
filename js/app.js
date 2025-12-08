@@ -439,6 +439,51 @@ importData(e) {
         this.renderQuoteList(); // 리스트 갱신 (색상 등 반영)
     },
 
+    // === 태그 모달 관련 ===
+    openTagModal(quoteId) {
+        const quote = DataManager.getQuote(quoteId);
+        if (!quote) return;
+        
+        const modal = document.getElementById('modal-tag-manager');
+        if (modal) modal.dataset.targetQuoteId = quoteId;
+        
+        this.hideCreateTagForm();
+        this.renderTagListInModal();
+        Modal.open('modal-tag-manager');
+    },
+
+    showCreateTagForm() {
+        document.getElementById('btn-show-create-tag').style.display = 'none';
+        document.getElementById('new-tag-form-container').style.display = 'block';
+        document.getElementById('new-tag-name').focus();
+    },
+
+    hideCreateTagForm() {
+        document.getElementById('btn-show-create-tag').style.display = 'block';
+        document.getElementById('new-tag-form-container').style.display = 'none';
+        document.getElementById('new-tag-name').value = '';
+    },
+
+    saveNewTag() {
+        const nameInput = document.getElementById('new-tag-name');
+        const colorInput = document.getElementById('new-tag-color');
+        const name = nameInput.value.trim();
+        const color = colorInput.value;
+        
+        if (!name) {
+            alert('태그 이름을 입력해주세요.');
+            return;
+        }
+        
+        DataManager.saveTag({ id: null, name, color });
+        
+        this.hideCreateTagForm();
+        
+        this.renderTagListInModal();
+        this.updateSidebarTagFilter();
+        this.renderQuoteList();
+    },
+
     assignTag(tagId) {
         const quoteId = document.getElementById('modal-tag-manager').dataset.targetQuoteId;
         const quote = DataManager.getQuote(quoteId);
