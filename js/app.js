@@ -404,23 +404,36 @@ importData(e) {
         const targetId = document.getElementById('modal-tag-manager').dataset.targetQuoteId;
         const quote = DataManager.getQuote(targetId);
 
-        listEl.innerHTML = tags.map(tag => `
-            <li class="tag-item">
-                <div class="tag-preview" style="background-color: ${tag.color}">${tag.name}</div>
+        listEl.innerHTML = tags.map(tag => {
+            const isSelected = quote && quote.tagId === tag.id;
+            
+            return `
+            <li class="tag-item" onclick="App.assignTag('${tag.id}')">
+                <div class="tag-info-group">
+                    <div class="tag-check-icon ${isSelected ? 'visible' : ''}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="tag-preview" style="background-color: ${tag.color}">${tag.name}</div>
+                </div>
+                
                 <div class="tag-actions">
-                    <button class="btn-pill small ${quote && quote.tagId === tag.id ? 'primary' : ''}" 
-                            onclick="App.assignTag('${tag.id}')">
-                        ${quote && quote.tagId === tag.id ? '선택됨' : '선택'}
+                    <button class="btn-icon" onclick="event.stopPropagation(); App.editTag('${tag.id}')" title="수정">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
                     </button>
-                    <button class="btn-icon" onclick="App.editTag('${tag.id}')">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </button>
-                    <button class="btn-icon danger" onclick="App.deleteTag('${tag.id}')">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <button class="btn-icon danger" onclick="event.stopPropagation(); App.deleteTag('${tag.id}')" title="삭제">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                     </button>
                 </div>
             </li>
-        `).join('');
+        `}).join('');
     },
 
     saveNewTag() {
