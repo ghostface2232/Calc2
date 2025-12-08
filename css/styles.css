@@ -922,16 +922,18 @@ body {
 }
 
 /* ===== 뷰 추가 버튼 ===== */
-/* [수정] 수직 중앙 정렬을 위해 고정 높이(height: 300px)와 align-self: flex-start 속성 제거 */
 .btn-add-view {
     flex: 0 0 200px;
     min-width: 200px;
-    /* height: 300px; 제거 */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 12px;
+    
+    /* 여기를 추가했습니다: 위아래 40px, 좌우 0 */
+    padding: 40px 0;
+    
     border: 2px dashed var(--color-border);
     background: transparent;
     border-radius: var(--radius-xl);
@@ -940,7 +942,6 @@ body {
     color: var(--color-text-light);
     cursor: pointer;
     transition: var(--transition);
-    /* align-self: flex-start; 제거 */
 }
 
 .btn-add-view:hover {
