@@ -9,6 +9,7 @@ const DataManager = {
         MATERIALS: 'gluck_materials',
         CLIENTS: 'gluck_clients',
         OPTION_PRESETS: 'gluck_option_presets',
+        TAGS: 'gluck_tags',
         SETTINGS: 'gluck_settings',
         LOCAL_SETTINGS: 'gluck_local_settings', // [추가]
         HISTORY: 'gluck_history'
@@ -117,8 +118,8 @@ const DataManager = {
         const quote = {
             id: 'qt_' + Date.now(),
             name: name,
-            // [수정 1] icon 필드 초기화 제거 (첫 글자 자동 썸네일 사용으로 불필요)
             createdAt: new Date().toISOString(),
+            tagId: null, // [추가] 태그 ID 필드 초기화
             clientId: null,
             customClient: null,
             views: [this.createView()]
@@ -302,6 +303,44 @@ const DataManager = {
     deleteOptionPreset(id) {
         const presets = this.getOptionPresets().filter(p => p.id !== id);
         localStorage.setItem(this.KEYS.OPTION_PRESETS, JSON.stringify(presets));
+    },
+
+    // === 태그 관리 ===
+    getTags() {
+        return this._safeLoad(this.KEYS.TAGS, []);
+    },
+
+    getTag(id) {
+        return this.getTags().find(t => t.id === id);
+    },
+
+    saveTag(tag) {
+        let tags = this.getTags();
+        if (tag.id) {
+            const index = tags.findIndex(t => t.id === tag.id);
+            if (index >= 0) tags[index] = tag;
+        } else {
+            tag.id = 'tag_' + Date.now();
+            tags.push(tag);
+        }
+        localStorage.setItem(this.KEYS.TAGS, JSON.stringify(tags));
+        return tag;
+    },
+
+    deleteTag(id) {
+        let tags = this.getTags().filter(t => t.id !== id);
+        localStorage.setItem(this.KEYS.TAGS, JSON.stringify(tags));
+        
+        // 삭제된 태그를 사용하는 견적들의 tagId 제거
+        let quotes = this.getQuotes();
+        let modified = false;
+        quotes.forEach(q => {
+            if (q.tagId === id) {
+                q.tagId = null;
+                modified = true;
+            }
+        });
+        if (modified) this.saveQuotes(quotes);
     },
 
     // === 설정 관리 ===
