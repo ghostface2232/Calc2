@@ -1682,3 +1682,9 @@ body {
     padding: 6px 12px;
     font-size: 12px;
 }
+
+/* 사이드바 접힘(Collapsed) 상태일 때 숨김 */
+.sidebar.collapsed .sidebar-toolbar-container,
+.sidebar.collapsed #btn-delete-selected {
+    display: none !important;
+}
