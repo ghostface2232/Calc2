@@ -53,9 +53,9 @@ const App = {
         
         resizeHandle.addEventListener('mousedown', (e) => {
             isResizing = true;
+            e.preventDefault(); // [추가] 드래그 시작 시 텍스트 선택 등 기본 브라우저 동작 방지
             resizeHandle.classList.add('active');
             document.body.style.cursor = 'ew-resize';
-            document.body.style.userSelect = 'none';
         });
         
         document.addEventListener('mousemove', (e) => {
@@ -235,24 +235,36 @@ const App = {
         URL.revokeObjectURL(url);
     },
 
-    importData(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+importData(e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const success = DataManager.importConfiguration(event.target.result);
-            if (success) {
-                alert('설정이 성공적으로 불러와졌습니다. 페이지를 새로고침합니다.');
-                location.reload();
-            } else {
-                alert('파일을 불러오는 중 오류가 발생했습니다. 올바른 JSON 파일인지 확인해주세요.');
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const success = DataManager.importConfiguration(event.target.result);
+        if (success) {
+            alert('설정이 성공적으로 불러와졌습니다.');
+            
+            this.state.activeQuoteId = null; 
+            const quotes = DataManager.getQuotes();
+            if (quotes.length > 0) {
+                this.state.activeQuoteId = quotes[0].id;
             }
-        };
-        reader.readAsText(file);
-        e.target.value = ''; 
-    },
 
+            const settings = DataManager.getSettings();
+            const sidebar = document.getElementById('sidebar');
+            if (settings.sidebarCollapsed) sidebar.classList.add('collapsed');
+            else sidebar.classList.remove('collapsed');
+
+            this.renderAll();
+            this.updateHistoryButtons();
+        } else {
+            alert('파일을 불러오는 중 오류가 발생했습니다. 올바른 JSON 파일인지 확인해주세요.');
+        }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; 
+},
     // === 견적 로직 ===
     createNewQuote() {
         DataManager.captureState(this.state.activeQuoteId);
