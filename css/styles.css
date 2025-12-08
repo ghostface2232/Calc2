@@ -1428,3 +1428,127 @@ body {
 .hidden {
     display: none !important;
 }
+/* 사이드바 도구 모음 */
+.sidebar-toolbar {
+    display: flex;
+    gap: 6px;
+    padding: 0 12px 12px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 8px;
+}
+
+.toolbar-select {
+    flex: 1;
+    min-width: 0;
+    padding: 6px;
+    font-size: 11px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-input);
+    color: var(--color-text);
+}
+
+.toolbar-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--color-text-secondary);
+}
+
+.toolbar-btn:hover { background: var(--bg-hover); }
+
+/* 견적 리스트 태그 */
+.quote-tag {
+    width: 38px;
+    height: 24px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 8px;
+    flex-shrink: 0;
+    transition: transform 0.1s;
+    user-select: none;
+}
+.quote-tag:hover { transform: scale(1.05); }
+
+/* 다중 선택 체크박스 */
+.quote-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-border);
+    border-radius: 4px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: transparent;
+    transition: all 0.2s;
+}
+.quote-checkbox.checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+/* [추가] 태그 관리 모달 스타일 */
+.new-tag-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+.new-tag-form input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+.tag-manager-list {
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.tag-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--bg-input);
+}
+.tag-preview {
+    padding: 4px 10px;
+    border-radius: 12px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+.tag-actions {
+    display: flex;
+    gap: 4px;
+}
+.btn-pill.small {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+.btn-danger-block {
+    width: auto;
+    margin: 0 12px 8px;
+    padding: 8px;
+    background: var(--color-danger);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
