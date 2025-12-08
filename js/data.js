@@ -10,7 +10,48 @@ const DataManager = {
         CLIENTS: 'gluck_clients',
         OPTION_PRESETS: 'gluck_option_presets',
         SETTINGS: 'gluck_settings',
-        LOCAL_SETTINGS: 'gluck_local_settings', // [수정 4] Export 제외용 로컬 설정 키 추가
+        LOCAL_SETTINGS: 'gluck_local_settings',
+    _safeLoad(key, defaultValue) {
+        try {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : defaultValue;
+        } catch (e) {
+            console.error(`Error loading ${key}:`, e);
+            return defaultValue;
+        }
+    },
+
+    // [수정] 기존의 getItem 호출부를 _safeLoad로 대체
+    getQuotes() {
+        return this._safeLoad(this.KEYS.QUOTES, []);
+    },
+
+    getMaterials() {
+        return this._safeLoad(this.KEYS.MATERIALS, this.DEFAULTS.materials);
+    },
+
+    getClients() {
+        return this._safeLoad(this.KEYS.CLIENTS, []);
+    },
+
+    getOptionPresets() {
+        return this._safeLoad(this.KEYS.OPTION_PRESETS, []);
+    },
+
+    getSettings() {
+        return this._safeLoad(this.KEYS.SETTINGS, this.DEFAULTS.settings);
+    },
+    
+    getLocalSetting(key) {
+        const localData = this._safeLoad(this.KEYS.LOCAL_SETTINGS, {});
+        return localData[key];
+    },
+
+    saveLocalSetting(key, value) {
+        const localData = this._safeLoad(this.KEYS.LOCAL_SETTINGS, {}); // 여기도 안전하게 로드
+        localData[key] = value;
+        localStorage.setItem(this.KEYS.LOCAL_SETTINGS, JSON.stringify(localData));
+    },
         HISTORY: 'gluck_history'
     },
 
