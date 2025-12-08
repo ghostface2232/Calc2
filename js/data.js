@@ -3,14 +3,17 @@
  * LocalStorage를 사용하여 데이터를 저장하고 관리합니다.
  */
 const DataManager = {
-    // 기본 키
+    // 1. 키값 정의 (KEYS 객체)
     KEYS: {
         QUOTES: 'gluck_quotes',
         MATERIALS: 'gluck_materials',
         CLIENTS: 'gluck_clients',
         OPTION_PRESETS: 'gluck_option_presets',
         SETTINGS: 'gluck_settings',
-        LOCAL_SETTINGS: 'gluck_local_settings',
+        LOCAL_SETTINGS: 'gluck_local_settings', // [추가]
+        HISTORY: 'gluck_history'
+    },
+
     _safeLoad(key, defaultValue) {
         try {
             const item = localStorage.getItem(key);
@@ -21,7 +24,6 @@ const DataManager = {
         }
     },
 
-    // [수정] 기존의 getItem 호출부를 _safeLoad로 대체
     getQuotes() {
         return this._safeLoad(this.KEYS.QUOTES, []);
     },
@@ -48,11 +50,9 @@ const DataManager = {
     },
 
     saveLocalSetting(key, value) {
-        const localData = this._safeLoad(this.KEYS.LOCAL_SETTINGS, {}); // 여기도 안전하게 로드
+        const localData = this._safeLoad(this.KEYS.LOCAL_SETTINGS, {});
         localData[key] = value;
         localStorage.setItem(this.KEYS.LOCAL_SETTINGS, JSON.stringify(localData));
-    },
-        HISTORY: 'gluck_history'
     },
 
     // 초기 데이터
