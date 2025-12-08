@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gluck-calc-v6.7'; 
+const CACHE_NAME = 'gluck-calc-v7'; 
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -8,7 +8,6 @@ const ASSETS_TO_CACHE = [
     './js/data.js',
     './js/modal.js',
     './manifest.json',
-    // 폰트 파일도 캐싱하면 오프라인 로딩이 자연스럽습니다. (파일이 실존해야 함)
     './fonts/SFKR-Regular.otf',
     './fonts/SFKR-Medium.otf',
     './fonts/SFKR-Bold.otf'
