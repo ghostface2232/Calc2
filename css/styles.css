@@ -43,10 +43,10 @@
     --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
     --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
     
-    --radius-sm: 10px;
-    --radius-md: 14px;
-    --radius-lg: 20px;
-    --radius-xl: 24px;
+    --radius-full: 16px;
+    --radius-md: 20px;
+    --radius-lg: 24px;
+    --radius-xl: 28px;
     --radius-full: 9999px;
     
     --transition: all 0.2s ease;
@@ -192,7 +192,7 @@ body {
     height: 32px;
     border: none;
     background: var(--bg-input);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     color: var(--color-text-secondary);
     cursor: pointer;
     display: flex;
@@ -247,7 +247,7 @@ body {
     width: 38px; /* 크기 증가 */
     height: 38px;
     min-width: 38px; 
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     
     background: var(--bg-input); 
     color: var(--color-text); 
@@ -475,7 +475,7 @@ body {
     border: 1px solid transparent;
     background: transparent;
     padding: 2px 6px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     width: 100%;
     min-width: 60px;
     transition: var(--transition);
@@ -634,7 +634,7 @@ body {
     border: 1px solid transparent;
     background: transparent;
     padding: 4px 8px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     width: auto;
     min-width: 80px;
     transition: var(--transition);
@@ -667,7 +667,7 @@ body {
     height: 28px;
     border: none;
     background: transparent;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     color: var(--color-text-light);
     cursor: pointer;
     display: flex;
@@ -811,7 +811,7 @@ body {
     padding: 6px;
     border: none;
     background: var(--bg-input);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     font-size: 12px;
     margin-right: 4px;
     cursor: pointer;
@@ -823,7 +823,7 @@ body {
     padding: 6px 10px;
     border: none;
     background: var(--bg-input);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 500;
     color: var(--color-text);
@@ -835,7 +835,7 @@ body {
     padding: 6px 10px;
     border: none;
     background: var(--bg-input);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 500;
     color: var(--color-text);
@@ -1064,7 +1064,7 @@ body {
     height: 28px;
     border: none;
     background: transparent;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     color: inherit;
     cursor: pointer;
     display: flex;
@@ -1203,7 +1203,7 @@ body {
     height: 36px;
     border: none;
     background: var(--bg-input);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     color: var(--color-text-secondary);
     cursor: pointer;
     display: flex;
@@ -1238,7 +1238,7 @@ body {
     padding: 10px 16px;
     border: none;
     background: transparent;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     font-size: 13px;
     font-weight: 500;
     color: var(--color-text-secondary);
@@ -1443,7 +1443,7 @@ body {
     padding: 6px;
     font-size: 11px;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     background: var(--bg-input);
     color: var(--color-text);
 }
@@ -1454,7 +1454,7 @@ body {
     padding: 0;
     border: 1px solid var(--color-border);
     background: var(--bg-card);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     cursor: pointer;
     color: var(--color-text-secondary);
 }
@@ -1511,7 +1511,7 @@ body {
     flex: 1;
     padding: 8px;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
 }
 .tag-manager-list {
     list-style: none;
@@ -1547,7 +1547,7 @@ body {
     background: var(--color-danger);
     color: white;
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: bold;
     cursor: pointer;
@@ -1558,7 +1558,7 @@ body {
     height: 32px;
     border: none;
     background: var(--bg-input);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     color: var(--color-text-secondary);
     cursor: pointer;
     display: flex;
