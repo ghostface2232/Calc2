@@ -44,9 +44,9 @@
     --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
     
     --radius-full: 16px;
-    --radius-md: 20px;
-    --radius-lg: 24px;
-    --radius-xl: 28px;
+    --radius-md: 24px;
+    --radius-lg: 28px;
+    --radius-xl: 36px;
     --radius-full: 9999px;
     
     --transition: all 0.2s ease;
