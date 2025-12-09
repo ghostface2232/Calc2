@@ -25,28 +25,28 @@
     --bg-main: #e8ecf1;
     --bg-card: #ffffff;
     --bg-sidebar: #f5f7fa;
-    --bg-input: #eef1f5;
+    --bg-input: #e6e9ed;
     --bg-hover: #e2e6ec;
     
-    --color-primary: #5b7bf2;
-    --color-primary-light: #eef1ff;
-    --color-primary-hover: #4a6ae0;
+    --color-primary: #456cff;
+    --color-primary-light: #d4e1ff;
+    --color-primary-hover: #406eed;
     
-    --color-text: #2d3748;
-    --color-text-secondary: #718096;
-    --color-text-light: #a0aec0;
+    --color-text: #1e232b;
+    --color-text-secondary: #5f6773;
+    --color-text-light: #86919e;
     
     --color-border: #e2e8f0;
-    --color-success: #48bb78;
-    --color-danger: #fc8181;
+    --color-success: #31d663;
+    --color-danger: #f05135;
     
-    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
-    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
     
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
     --radius-full: 9999px;
     
     --transition: all 0.2s ease;
