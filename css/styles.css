@@ -167,11 +167,12 @@ input, select, textarea, button {
 }
 
 .sidebar-header h1 {
-   font-size: 15px;
-   font-weight: 600;
+   font-size: 16px;
+   font-weight: 700;
    color: var(--color-text);
    white-space: nowrap;
    overflow: hidden;
+   line-height: 28px;
 }
 
 .sidebar-header-actions {
@@ -791,43 +792,39 @@ input, select, textarea, button {
    margin-bottom: var(--space-3);
 }
 .option-item {
-   display: flex;
-   align-items: center;
-   gap: var(--space-2);
-   padding: var(--space-2) var(--space-3);
    background: var(--bg-card);
    border: 1px solid var(--color-border);
    border-radius: var(--radius-md);
+   padding: var(--space-2);
+}
+.option-item-row {
+   display: flex;
+   align-items: center;
+   gap: var(--space-1);
+   width: 100%;
 }
 .option-item label {
-   font-size: 11px;
-   font-weight: 500;
+   font-size: 10px;
+   font-weight: 600;
    color: var(--color-text-secondary);
    white-space: nowrap;
-   width: 36px;
+   width: 32px;
+   flex-shrink: 0;
 }
 .option-preset-select {
-   width: 90px;
-   padding: var(--space-1) var(--space-2);
+   width: 56px;
+   padding: 4px 6px;
    border: 1px solid var(--color-border);
    background: var(--bg-card);
    border-radius: var(--radius-sm);
-   font-size: 11px;
-   cursor: pointer;
-}
-.option-price-type-select {
-   width: 52px;
-   padding: var(--space-1) var(--space-2);
-   border: 1px solid var(--color-border);
-   background: var(--bg-card);
-   border-radius: var(--radius-sm);
-   font-size: 11px;
+   font-size: 10px;
    cursor: pointer;
    flex-shrink: 0;
 }
-.option-item input[type="text"], .option-item input[type="number"] {
+.option-name-input {
    flex: 1;
-   padding: var(--space-1) var(--space-2);
+   min-width: 60px;
+   padding: 4px 6px;
    border: 1px solid var(--color-border);
    background: var(--bg-card);
    border-radius: var(--radius-sm);
@@ -835,8 +832,32 @@ input, select, textarea, button {
    font-weight: 500;
    color: var(--color-text);
 }
-.option-item input[type="number"] { width: 70px; text-align: right; flex: none; }
-.option-item input:focus { outline: none; border-color: var(--color-primary); }
+.option-price-input {
+   width: 52px;
+   padding: 4px 6px;
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-sm);
+   font-size: 11px;
+   font-weight: 500;
+   color: var(--color-text);
+   text-align: right;
+   flex-shrink: 0;
+}
+.option-price-type-select {
+   width: 36px;
+   padding: 4px 4px;
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-sm);
+   font-size: 10px;
+   cursor: pointer;
+   flex-shrink: 0;
+}
+.option-item input:focus, .option-item select:focus {
+   outline: none;
+   border-color: var(--color-primary);
+}
 .option-remove {
    width: 18px;
    height: 18px;
@@ -985,7 +1006,7 @@ input, select, textarea, button {
 
 /* 계산기 푸터 */
 .calculator-footer {
-   padding: var(--space-3) var(--space-5);
+   padding: var(--space-2) var(--space-5) var(--space-5);
    border-top: 1px solid var(--color-border);
 }
 .footer-title {
@@ -1139,7 +1160,7 @@ input, select, textarea, button {
 .tag-item:last-child { border-bottom: none; }
 .tag-item:hover { background: var(--bg-hover); }
 
-.tag-info-group { display: flex; align-items: center; gap: var(--space-3); }
+.tag-info-group { display: flex; align-items: center; gap: var(--space-2); flex: 1; }
 .tag-check-icon {
    width: 18px;
    height: 18px;
@@ -1149,6 +1170,7 @@ input, select, textarea, button {
    justify-content: center;
    opacity: 0;
    transition: var(--transition-fast);
+   flex-shrink: 0;
 }
 .tag-check-icon.visible { opacity: 1; }
 .tag-preview {
@@ -1159,8 +1181,64 @@ input, select, textarea, button {
    font-weight: 600;
    white-space: nowrap;
 }
-.tag-actions { opacity: 0.3; transition: var(--transition-fast); display: flex; gap: var(--space-1); }
+.tag-color-btn {
+   width: 24px;
+   height: 24px;
+   border-radius: var(--radius-sm);
+   cursor: pointer;
+   flex-shrink: 0;
+   border: 2px solid rgba(255,255,255,0.3);
+   box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+   transition: var(--transition-fast);
+}
+.tag-color-btn:hover { transform: scale(1.1); }
+.tag-name-input {
+   flex: 1;
+   padding: var(--space-1) var(--space-2);
+   border: 1px solid transparent;
+   border-radius: var(--radius-sm);
+   background: transparent;
+   font-size: 12px;
+   font-weight: 600;
+   color: var(--color-text);
+   min-width: 60px;
+}
+.tag-name-input:hover { border-color: var(--color-border); background: var(--bg-input); }
+.tag-name-input:focus { outline: none; border-color: var(--color-primary); background: var(--bg-card); }
+.tag-actions { opacity: 0.3; transition: var(--transition-fast); display: flex; gap: var(--space-1); flex-shrink: 0; }
 .tag-item:hover .tag-actions { opacity: 1; }
+.tag-item { flex-wrap: wrap; }
+.tag-color-picker {
+   width: 100%;
+   display: grid;
+   grid-template-columns: repeat(10, 1fr);
+   gap: 6px;
+   padding: var(--space-2);
+   margin-top: var(--space-2);
+   background: var(--bg-input);
+   border-radius: var(--radius-sm);
+}
+.color-swatch {
+   width: 100%;
+   aspect-ratio: 1;
+   border-radius: var(--radius-sm);
+   cursor: pointer;
+   border: 2px solid transparent;
+   transition: var(--transition-fast);
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.selected {
+   border-color: var(--color-text);
+   box-shadow: 0 0 0 2px var(--bg-card);
+}
+
+/* 컬러 피커 그리드 (새 태그 생성용) */
+.color-picker-grid {
+   display: grid;
+   grid-template-columns: repeat(10, 1fr);
+   gap: 6px;
+   margin: var(--space-2) 0;
+}
 
 /* 신규 태그 생성 */
 .btn-create-tag-toggle {

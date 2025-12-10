@@ -10,6 +10,14 @@ const App = {
         selectedQuoteIds: new Set() // [추가] 선택된 견적 ID 집합
     },
 
+    // 태그 컬러 프리셋 (약 20개)
+    TAG_COLORS: [
+        '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16',
+        '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
+        '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+        '#ec4899', '#f43f5e', '#78716c', '#64748b', '#6b7280'
+    ],
+
     // ICONS 객체 삭제됨
 
     init() {
@@ -400,16 +408,16 @@ importData(e) {
         Modal.open('modal-tag-manager');
     },
 
-        renderTagListInModal() {
+    renderTagListInModal() {
         const listEl = document.getElementById('tag-manager-list');
         if (!listEl) return;
-        
+
         const tags = DataManager.getTags();
         const targetId = document.getElementById('modal-tag-manager').dataset.targetQuoteId;
         const quote = DataManager.getQuote(targetId);
 
         const isNoTagSelected = quote && !quote.tagId;
-        
+
         const noTagItem = `
             <li class="tag-item" onclick="App.assignTag(null)">
                 <div class="tag-info-group">
@@ -426,31 +434,36 @@ importData(e) {
 
         const tagItems = tags.map(tag => {
             const isSelected = quote && quote.tagId === tag.id;
-            
+
             return `
-            <li class="tag-item" onclick="App.assignTag('${tag.id}')">
-                <div class="tag-info-group">
+            <li class="tag-item">
+                <div class="tag-info-group" onclick="App.assignTag('${tag.id}')">
                     <div class="tag-check-icon ${isSelected ? 'visible' : ''}">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                     </div>
-                    <div class="tag-preview" style="background-color: ${tag.color}">${tag.name}</div>
+                    <div class="tag-color-btn" style="background-color: ${tag.color}" onclick="event.stopPropagation(); App.toggleTagColorPicker('${tag.id}')"></div>
+                    <input type="text" class="tag-name-input" value="${tag.name}" maxlength="10"
+                           onclick="event.stopPropagation();"
+                           onchange="App.updateTagName('${tag.id}', this.value)"
+                           onkeypress="if(event.key === 'Enter') this.blur();">
                 </div>
-                
+
                 <div class="tag-actions">
-                    <button class="btn-icon" onclick="event.stopPropagation(); App.editTag('${tag.id}')" title="수정">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                    </button>
                     <button class="btn-icon danger" onclick="event.stopPropagation(); App.deleteTag('${tag.id}')" title="삭제">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
                     </button>
+                </div>
+                <div class="tag-color-picker" id="tag-color-picker-${tag.id}" style="display: none;">
+                    ${this.TAG_COLORS.map(c => `
+                        <div class="color-swatch ${tag.color === c ? 'selected' : ''}"
+                             style="background-color: ${c}"
+                             onclick="event.stopPropagation(); App.setTagColor('${tag.id}', '${c}')"></div>
+                    `).join('')}
                 </div>
             </li>
         `}).join('');
@@ -491,7 +504,37 @@ importData(e) {
     showCreateTagForm() {
         document.getElementById('btn-show-create-tag').style.display = 'none';
         document.getElementById('new-tag-form-container').style.display = 'block';
+
+        // 컬러 피커 렌더링
+        const colorPicker = document.getElementById('new-tag-color-picker');
+        const defaultColor = '#3b82f6';
+        document.getElementById('new-tag-color').value = defaultColor;
+
+        colorPicker.innerHTML = this.TAG_COLORS.map(c => `
+            <div class="color-swatch ${c === defaultColor ? 'selected' : ''}"
+                 style="background-color: ${c}"
+                 onclick="App.selectNewTagColor('${c}')"></div>
+        `).join('');
+
         document.getElementById('new-tag-name').focus();
+    },
+
+    selectNewTagColor(color) {
+        document.getElementById('new-tag-color').value = color;
+        document.querySelectorAll('#new-tag-color-picker .color-swatch').forEach(s => {
+            s.classList.toggle('selected', s.style.backgroundColor === color ||
+                this.rgbToHex(s.style.backgroundColor) === color);
+        });
+    },
+
+    rgbToHex(rgb) {
+        if (rgb.startsWith('#')) return rgb;
+        const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (!match) return rgb;
+        return '#' + [match[1], match[2], match[3]].map(x => {
+            const hex = parseInt(x).toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        }).join('');
     },
 
     hideCreateTagForm() {
@@ -539,17 +582,35 @@ importData(e) {
         this.renderQuoteList();
     },
 
-    editTag(tagId) {
+    updateTagName(tagId, newName) {
         const tag = DataManager.getTag(tagId);
-        if(!tag) return;
-        const newName = prompt('태그 이름 수정:', tag.name);
-        if(newName) {
-            tag.name = newName.trim();
-            DataManager.saveTag(tag);
-            this.renderTagListInModal();
-            this.updateSidebarTagFilter();
-            this.renderQuoteList();
-        }
+        if (!tag || !newName.trim()) return;
+        tag.name = newName.trim();
+        DataManager.saveTag(tag);
+        this.updateSidebarTagFilter();
+        this.renderQuoteList();
+    },
+
+    toggleTagColorPicker(tagId) {
+        const picker = document.getElementById(`tag-color-picker-${tagId}`);
+        if (!picker) return;
+
+        // 다른 컬러 피커들을 닫기
+        document.querySelectorAll('.tag-color-picker').forEach(p => {
+            if (p.id !== `tag-color-picker-${tagId}`) p.style.display = 'none';
+        });
+
+        picker.style.display = picker.style.display === 'none' ? 'grid' : 'none';
+    },
+
+    setTagColor(tagId, color) {
+        const tag = DataManager.getTag(tagId);
+        if (!tag) return;
+        tag.color = color;
+        DataManager.saveTag(tag);
+        this.renderTagListInModal();
+        this.updateSidebarTagFilter();
+        this.renderQuoteList();
     },
 
     updateSidebarTagFilter() {

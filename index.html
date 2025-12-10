@@ -88,9 +88,10 @@
 
                 <div class="new-tag-form-container" id="new-tag-form-container" style="display: none;">
                     <div class="new-tag-form">
-                        <input type="color" id="new-tag-color" value="#5b7bf2">
                         <input type="text" id="new-tag-name" placeholder="태그 이름" maxlength="10">
                     </div>
+                    <input type="hidden" id="new-tag-color" value="#5b7bf2">
+                    <div class="color-picker-grid" id="new-tag-color-picker"></div>
                     <div class="new-tag-actions">
                         <button class="btn-secondary small" onclick="App.hideCreateTagForm()">취소</button>
                         <button class="btn-primary small" onclick="App.saveNewTag()">저장</button>
