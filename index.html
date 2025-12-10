@@ -169,6 +169,39 @@
                 </div>
 
                 <div class="tab-content" id="tab-data">
+                    <!-- 파일 저장 설정 (File System API) -->
+                    <div class="setting-section">
+                        <div class="setting-header">
+                            <span>로컬 파일 저장</span>
+                        </div>
+                        <div class="file-storage-section">
+                            <p class="data-description">
+                                로컬 폴더를 지정하면 모든 데이터가 파일로 자동 저장됩니다.<br>
+                                브라우저 캐시를 삭제해도 데이터가 안전하게 보관됩니다.
+                            </p>
+                            <div class="file-storage-status" id="file-storage-status">
+                                <!-- 상태가 여기에 동적으로 표시됨 -->
+                            </div>
+                            <div class="file-storage-actions">
+                                <button class="btn-secondary" id="btn-select-folder" onclick="App.selectStorageFolder()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;">
+                                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                    저장 폴더 선택
+                                </button>
+                                <button class="btn-secondary" id="btn-disable-file-storage" onclick="App.disableFileStorage()" style="display:none;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                    파일 저장 해제
+                                </button>
+                            </div>
+                            <p class="file-storage-note" id="file-storage-note"></p>
+                        </div>
+                    </div>
+
+                    <!-- 기존 설정 데이터 관리 -->
                     <div class="setting-section">
                         <div class="setting-header">
                             <span>설정 데이터 관리</span>

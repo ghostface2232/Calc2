@@ -1266,3 +1266,154 @@ input, select, textarea, button {
    color: var(--color-primary);
    background: var(--color-primary-light);
 }
+
+/* =========================================
+  8. 누락된 스타일 보완
+  ========================================= */
+
+/* 폼 그룹 스타일 */
+.form-group {
+   margin-bottom: 16px;
+}
+.form-group label {
+   display: block;
+   font-size: 12px;
+   font-weight: 600;
+   color: var(--color-text-secondary);
+   margin-bottom: 6px;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+   width: 100%;
+   padding: 10px 14px;
+   border: 1px solid var(--color-border);
+   background: var(--bg-input);
+   border-radius: var(--radius-full);
+   font-size: 13px;
+   color: var(--color-text);
+   transition: var(--transition);
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+   outline: none;
+   border-color: var(--color-primary);
+   box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+.form-actions {
+   display: flex;
+   justify-content: flex-end;
+   gap: 10px;
+   margin-top: 20px;
+   padding-top: 16px;
+   border-top: 1px solid var(--color-border);
+}
+
+/* 데이터 설명 텍스트 */
+.data-description {
+   font-size: 13px;
+   color: var(--color-text-secondary);
+   line-height: 1.6;
+   margin-bottom: 16px;
+}
+
+/* 태그 리스트 라벨 */
+.tag-list-label {
+   font-size: 12px;
+   font-weight: 600;
+   color: var(--color-text-secondary);
+   margin-bottom: 8px;
+}
+
+/* 옵션 추가 버튼 내 SVG 크기 */
+.btn-add-option svg {
+   width: 14px;
+   height: 14px;
+   flex-shrink: 0;
+}
+
+/* =========================================
+  9. 파일 저장 (File System API) 스타일
+  ========================================= */
+.file-storage-section {
+   padding: 16px 0;
+}
+
+.file-storage-status {
+   margin-bottom: 16px;
+}
+
+.file-storage-status-badge {
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   padding: 8px 14px;
+   border-radius: var(--radius-full);
+   font-size: 13px;
+   font-weight: 600;
+   margin-bottom: 12px;
+}
+.file-storage-status-badge.active {
+   background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+   color: white;
+}
+.file-storage-status-badge.warning {
+   background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+   color: white;
+}
+.file-storage-status-badge.inactive {
+   background: var(--bg-input);
+   color: var(--color-text-secondary);
+}
+
+.file-storage-info {
+   background: var(--bg-input);
+   border-radius: var(--radius-md);
+   padding: 14px 18px;
+   margin-top: 12px;
+}
+.file-storage-info-row {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   font-size: 13px;
+   margin-bottom: 6px;
+}
+.file-storage-info-row:last-child {
+   margin-bottom: 0;
+}
+.file-storage-info-row .label {
+   color: var(--color-text-secondary);
+   min-width: 80px;
+}
+.file-storage-info-row .value {
+   color: var(--color-text);
+   font-weight: 500;
+}
+
+.file-storage-actions {
+   display: flex;
+   gap: 10px;
+   margin-bottom: 12px;
+}
+.file-storage-actions .btn-secondary {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 10px 18px;
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+}
+.file-storage-actions .btn-secondary:hover {
+   border-color: var(--color-primary);
+   color: var(--color-primary);
+   background: var(--color-primary-light);
+}
+
+.file-storage-note {
+   font-size: 12px;
+   color: var(--color-text-light);
+   line-height: 1.5;
+   margin-top: 8px;
+}
