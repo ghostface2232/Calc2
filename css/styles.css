@@ -21,38 +21,51 @@
 }
 
 :root {
-   /* Colors */
-   --bg-main: #e8ecf1;
+   /* Colors - Figma UI3 inspired palette */
+   --bg-main: #f5f5f5;
    --bg-card: #ffffff;
-   --bg-sidebar: #f5f7fa;
-   --bg-input: #e6e9ed;
-   --bg-hover: #e2e6ec;
-   
-   --color-primary: #456cff;
-   --color-primary-light: #d4e1ff;
-   --color-primary-hover: #406eed;
-   
-   --color-text: #1e232b;
-   --color-text-secondary: #5f6773;
-   --color-text-light: #86919e;
-   
-   --color-border: #e2e8f0;
-   --color-success: #31d663;
-   --color-danger: #f05135;
-   
-   /* Shadows */
-   --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
-   --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-   
-   /* Radius */
-   --radius-md: 24px;
-   --radius-lg: 28px;
-   --radius-xl: 36px;
-   --radius-full: 9999px; /* Pill/Circle Shape */
-   
+   --bg-sidebar: #fafafa;
+   --bg-input: #f0f0f0;
+   --bg-hover: #ebebeb;
+
+   --color-primary: #0d99ff;
+   --color-primary-light: #e5f4ff;
+   --color-primary-hover: #0b87e0;
+
+   --color-text: #1e1e1e;
+   --color-text-secondary: #6b6b6b;
+   --color-text-light: #999999;
+
+   --color-border: #e5e5e5;
+   --color-border-strong: #d0d0d0;
+   --color-success: #14ae5c;
+   --color-danger: #f24822;
+
+   /* Shadows - minimal, subtle */
+   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+   --shadow-focus: 0 0 0 2px var(--color-primary-light);
+
+   /* Radius - slightly smaller for cleaner look */
+   --radius-sm: 6px;
+   --radius-md: 8px;
+   --radius-lg: 12px;
+   --radius-xl: 16px;
+   --radius-full: 9999px;
+
+   /* Spacing - consistent scale */
+   --space-1: 4px;
+   --space-2: 8px;
+   --space-3: 12px;
+   --space-4: 16px;
+   --space-5: 20px;
+   --space-6: 24px;
+   --space-8: 32px;
+
    /* Utils */
-   --transition: all 0.2s ease;
-   --font-family: 'SFKR', -apple-system, BlinkMacSystemFont, sans-serif;
+   --transition: all 0.15s ease;
+   --transition-fast: all 0.1s ease;
+   --font-family: 'SFKR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
    --sidebar-width: 280px;
 }
 
@@ -71,19 +84,19 @@ html, body {
 
 body {
    font-family: var(--font-family);
-   font-size: 14px;
-   line-height: 1.6;
+   font-size: 13px;
+   line-height: 1.5;
    color: var(--color-text);
    background: var(--bg-main);
    -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
 }
 
-/* [수정] 폼 요소 폰트 상속 강제 (모달 등에서 폰트 깨짐 방지) */
 input, select, textarea, button {
    font-family: var(--font-family);
 }
 
-/* 스크롤바 커스텀 */
+/* 스크롤바 - 더 얇고 미니멀하게 */
 ::-webkit-scrollbar {
    width: 6px;
    height: 6px;
@@ -92,7 +105,7 @@ input, select, textarea, button {
    background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-   background: var(--color-border);
+   background: var(--color-border-strong);
    border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -107,36 +120,36 @@ input, select, textarea, button {
 .app-container {
    display: flex;
    height: 100vh;
-   padding: 20px;
-   gap: 20px;
+   padding: var(--space-4);
+   gap: var(--space-4);
 }
 
 /* =========================================
-  4. 사이드바 (Sidebar)
+  4. 사이드바 (Sidebar) - 아웃라인 스타일
   ========================================= */
 .sidebar {
    width: var(--sidebar-width);
    min-width: 180px;
    max-width: 480px;
-   background: var(--bg-sidebar);
+   background: var(--bg-card);
    border-radius: var(--radius-xl);
-   box-shadow: var(--shadow-card);
+   border: 1px solid var(--color-border);
    display: flex;
    flex-direction: column;
    overflow: hidden;
    position: relative;
-   transition: width 0.3s ease, min-width 0.3s ease;
+   transition: width 0.2s ease, min-width 0.2s ease;
 }
 
 .sidebar-resize-handle {
    position: absolute;
    top: 0;
    right: 0;
-   width: 6px;
+   width: 4px;
    height: 100%;
    cursor: ew-resize;
    background: transparent;
-   transition: background 0.2s;
+   transition: background 0.15s;
    z-index: 10;
 }
 .sidebar-resize-handle:hover,
@@ -149,13 +162,13 @@ input, select, textarea, button {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   padding: 24px 20px 16px; /* 좌우 여백 20px 통일 */
-   gap: 12px;
+   padding: var(--space-5) var(--space-4) var(--space-3);
+   gap: var(--space-3);
 }
 
 .sidebar-header h1 {
-   font-size: 18px;
-   font-weight: 700;
+   font-size: 15px;
+   font-weight: 600;
    color: var(--color-text);
    white-space: nowrap;
    overflow: hidden;
@@ -163,64 +176,73 @@ input, select, textarea, button {
 
 .sidebar-header-actions {
    display: flex;
-   gap: 6px;
+   gap: var(--space-1);
    flex-shrink: 0;
 }
 
-/* 헤더 액션 버튼 공통 */
+/* 헤더 액션 버튼 - 아웃라인 스타일 */
 .btn-header-action,
 .btn-add-quote,
 .btn-collapse {
-   width: 32px;
-   height: 32px;
-   border: none;
-   background: var(--bg-input);
-   border-radius: var(--radius-full);
+   width: 28px;
+   height: 28px;
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-md);
    color: var(--color-text-secondary);
    cursor: pointer;
    display: flex;
    align-items: center;
    justify-content: center;
-   transition: var(--transition);
+   transition: var(--transition-fast);
    flex-shrink: 0;
 }
 .btn-header-action:hover,
 .btn-add-quote:hover,
 .btn-collapse:hover {
-   background: var(--color-primary);
-   color: white;
+   border-color: var(--color-primary);
+   color: var(--color-primary);
+   background: var(--color-primary-light);
 }
 
-/* 사이드바 툴바 & 섹션 타이틀 */
+/* 사이드바 툴바 */
 .sidebar-toolbar-container {
-   padding: 0 20px 12px; /* 좌우 여백 20px 통일 */
+   padding: 0 var(--space-4) var(--space-3);
    border-bottom: 1px solid var(--color-border);
-   margin-bottom: 8px;
+   margin-bottom: var(--space-2);
 }
 
 .sidebar-section-title {
    font-size: 11px;
-   font-weight: 700;
-   color: var(--color-text-secondary);
-   margin-bottom: 8px;
-   display: flex;
-   align-items: center;
+   font-weight: 600;
+   color: var(--color-text-light);
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+   margin-bottom: var(--space-2);
 }
 
 .sidebar-toolbar {
    display: flex;
-   gap: 6px;
+   gap: var(--space-2);
 }
 
 .toolbar-select {
    flex: 1;
    min-width: 0;
-   padding: 6px 12px;
-   font-size: 11px;
+   padding: 6px 10px;
+   font-size: 12px;
    border: 1px solid var(--color-border);
-   border-radius: var(--radius-full);
-   background: var(--bg-input);
+   border-radius: var(--radius-md);
+   background: var(--bg-card);
    color: var(--color-text);
+   transition: var(--transition-fast);
+}
+.toolbar-select:hover {
+   border-color: var(--color-border-strong);
+}
+.toolbar-select:focus {
+   outline: none;
+   border-color: var(--color-primary);
 }
 
 .toolbar-btn {
@@ -229,42 +251,51 @@ input, select, textarea, button {
    padding: 0;
    border: 1px solid var(--color-border);
    background: var(--bg-card);
-   border-radius: var(--radius-full);
+   border-radius: var(--radius-md);
    cursor: pointer;
    color: var(--color-text-secondary);
    display: flex;
    align-items: center;
    justify-content: center;
+   transition: var(--transition-fast);
 }
-.toolbar-btn:hover { background: var(--bg-hover); }
+.toolbar-btn:hover {
+   border-color: var(--color-border-strong);
+   background: var(--bg-hover);
+}
 
 /* 견적 리스트 */
 .quote-list {
    flex: 1;
    overflow-y: auto;
-   padding: 0 20px; /* 좌우 여백 20px 통일 */
+   padding: var(--space-2) var(--space-3);
    list-style: none;
 }
 
 .quote-list-item {
    display: flex;
    align-items: center;
-   gap: 12px;
-   padding: 12px 16px;
-   margin-bottom: 4px;
-   border-radius: var(--radius-full); /* Track Shape */
+   gap: var(--space-3);
+   padding: var(--space-2) var(--space-3);
+   margin-bottom: 2px;
+   border-radius: var(--radius-md);
    cursor: pointer;
-   transition: var(--transition);
+   transition: var(--transition-fast);
    position: relative;
-   border: none;
+   border: 1px solid transparent;
 }
-.quote-list-item:hover { background: var(--bg-hover); }
-.quote-list-item.active { background: var(--color-primary); color: white; }
+.quote-list-item:hover {
+   background: var(--bg-hover);
+}
+.quote-list-item.active {
+   background: var(--color-primary);
+   color: white;
+}
 
 .quote-list-item-name {
    flex: 1;
    font-weight: 500;
-   font-size: 14px;
+   font-size: 13px;
    white-space: nowrap;
    overflow: hidden;
    text-overflow: ellipsis;
@@ -274,50 +305,51 @@ input, select, textarea, button {
    display: flex;
    gap: 2px;
    opacity: 0;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
 .quote-list-item:hover .quote-list-item-actions,
-.quote-list-item.active .quote-list-item-actions { opacity: 1; }
+.quote-list-item.active .quote-list-item-actions {
+   opacity: 1;
+}
 
 .quote-list-empty {
    text-align: center;
-   padding: 40px 20px;
+   padding: var(--space-8) var(--space-4);
    color: var(--color-text-light);
-   font-size: 13px;
+   font-size: 12px;
 }
 
 /* 리스트 태그 및 체크박스 */
 .quote-tag {
-   width: auto;
-   min-width: 38px;
-   height: 24px;
-   padding: 0 10px;
-   border-radius: var(--radius-full);
-   font-size: 11px;
-   font-weight: 700;
+   min-width: 32px;
+   height: 22px;
+   padding: 0 var(--space-2);
+   border-radius: var(--radius-sm);
+   font-size: 10px;
+   font-weight: 600;
    display: flex;
    align-items: center;
    justify-content: center;
    cursor: pointer;
-   margin-right: 8px;
    flex-shrink: 0;
-   transition: transform 0.1s;
+   transition: var(--transition-fast);
    user-select: none;
 }
-.quote-tag:hover { transform: scale(1.05); }
+.quote-tag:hover {
+   opacity: 0.85;
+}
 
 .quote-checkbox {
-   width: 18px;
-   height: 18px;
-   border: 2px solid var(--color-border);
-   border-radius: 50%;
-   margin-right: 10px;
+   width: 16px;
+   height: 16px;
+   border: 1.5px solid var(--color-border-strong);
+   border-radius: var(--radius-sm);
    display: flex;
    align-items: center;
    justify-content: center;
    cursor: pointer;
    color: transparent;
-   transition: all 0.2s;
+   transition: var(--transition-fast);
    flex-shrink: 0;
 }
 .quote-checkbox.checked {
@@ -328,7 +360,7 @@ input, select, textarea, button {
 
 /* 사이드바 푸터 */
 .sidebar-footer {
-   padding: 16px 20px; /* 좌우 여백 20px 통일 */
+   padding: var(--space-3) var(--space-4);
    border-top: 1px solid var(--color-border);
    margin-top: auto;
 }
@@ -336,31 +368,33 @@ input, select, textarea, button {
 .btn-settings {
    display: flex;
    align-items: center;
-   gap: 10px;
+   gap: var(--space-2);
    width: 100%;
-   padding: 12px 16px;
+   padding: var(--space-2) var(--space-3);
    border: none;
    background: transparent;
-   border-radius: var(--radius-full);
+   border-radius: var(--radius-md);
    color: var(--color-text-secondary);
-   font-size: 14px;
+   font-size: 13px;
    font-weight: 500;
    cursor: pointer;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
-.btn-settings:hover { background: var(--bg-hover); color: var(--color-text); }
+.btn-settings:hover {
+   background: var(--bg-hover);
+   color: var(--color-text);
+}
 
-/* === 사이드바 접힘(Collapsed) 상태 처리 === */
+/* === 사이드바 접힘 상태 === */
 .sidebar.collapsed {
-   width: 68px !important;
-   min-width: 68px !important;
+   width: 56px !important;
+   min-width: 56px !important;
 }
 .sidebar.collapsed .sidebar-header {
    flex-direction: column;
-   padding: 20px 10px;
-   gap: 16px;
+   padding: var(--space-4) var(--space-2);
+   gap: var(--space-3);
 }
-/* 접혔을 때 숨길 요소들 */
 .sidebar.collapsed .sidebar-header h1,
 .sidebar.collapsed .quote-list,
 .sidebar.collapsed .sidebar-footer .btn-settings span,
@@ -375,26 +409,23 @@ input, select, textarea, button {
    flex-direction: column;
    width: 100%;
    align-items: center;
-   gap: 12px;
+   gap: var(--space-2);
 }
-.sidebar.collapsed .btn-collapse,
-.sidebar.collapsed .btn-header-action#btn-collapse {
+.sidebar.collapsed .btn-collapse {
    transform: rotate(180deg);
 }
 
-/* [수정] 접혔을 때 설정 아이콘 사라짐 방지 */
 .sidebar.collapsed .sidebar-footer .btn-settings {
    justify-content: center;
-   padding: 12px;
-   width: 44px;    /* 너비 고정 */
-   margin: 0 auto; /* 중앙 정렬 */
+   padding: var(--space-2);
+   width: 32px;
+   margin: 0 auto;
 }
 .sidebar.collapsed .sidebar-footer .btn-settings svg {
-   width: 22px;
-   height: 22px;
-   min-width: 22px; /* 아이콘 최소 크기 보장 */
-   min-height: 22px;
-   display: block;
+   width: 18px;
+   height: 18px;
+   min-width: 18px;
+   min-height: 18px;
 }
 
 /* =========================================
@@ -412,36 +443,39 @@ input, select, textarea, button {
    display: flex;
    align-items: center;
    justify-content: flex-end;
-   padding: 0 20px 10px 20px;
-   gap: 8px;
+   padding: 0 var(--space-4) var(--space-2);
+   gap: var(--space-2);
    flex-shrink: 0;
 }
 
 .btn-history {
-   width: 40px;
-   height: 40px;
-   border: none;
-   background: transparent;
-   border-radius: var(--radius-full);
+   width: 32px;
+   height: 32px;
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-md);
    color: var(--color-text-secondary);
    cursor: pointer;
    display: flex;
    align-items: center;
    justify-content: center;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
 .btn-history:hover:not(:disabled) {
-   background: var(--bg-card);
+   border-color: var(--color-border-strong);
+   background: var(--bg-hover);
    color: var(--color-text);
-   box-shadow: var(--shadow-soft);
 }
-.btn-history:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-history:disabled {
+   opacity: 0.4;
+   cursor: not-allowed;
+}
 
-/* 계산기 컨테이너 (중앙 정렬) */
+/* 계산기 컨테이너 */
 .calculator-container {
    display: inline-flex;
-   gap: 20px;
-   padding: 20px;
+   gap: var(--space-4);
+   padding: var(--space-4);
    overflow-x: auto;
    margin: 0 auto;
    min-width: 100%;
@@ -452,24 +486,24 @@ input, select, textarea, button {
    text-align: left;
 }
 
-/* 계산기 뷰 (카드) */
+/* 계산기 뷰 - 아웃라인 스타일 */
 .calculator {
    background: var(--bg-card);
    border-radius: var(--radius-xl);
-   box-shadow: var(--shadow-card);
+   border: 1px solid var(--color-border);
    display: flex;
    flex-direction: column;
    overflow: hidden;
-   flex: 0 0 480px;
-   min-width: 400px;
-   max-width: 560px;
+   flex: 0 0 460px;
+   min-width: 380px;
+   max-width: 540px;
    height: fit-content;
    max-height: 100%;
    text-align: left;
 }
 
 .calculator-header {
-   padding: 20px 24px 16px;
+   padding: var(--space-4) var(--space-5) var(--space-3);
    border-bottom: 1px solid var(--color-border);
 }
 
@@ -477,11 +511,11 @@ input, select, textarea, button {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   margin-bottom: 12px;
+   margin-bottom: var(--space-3);
 }
 .calculator-title h2 {
-   font-size: 18px;
-   font-weight: 700;
+   font-size: 15px;
+   font-weight: 600;
    color: var(--color-text);
    display: flex;
    align-items: center;
@@ -497,31 +531,33 @@ input, select, textarea, button {
 }
 .view-name-separator {
    color: var(--color-text-light);
-   margin: 0 8px;
+   margin: 0 var(--space-2);
    font-weight: 400;
 }
 .view-name-input {
    font-family: var(--font-family);
-   font-size: 18px;
-   font-weight: 700;
+   font-size: 15px;
+   font-weight: 600;
    color: var(--color-primary);
    border: 1px solid transparent;
    background: transparent;
-   padding: 4px 12px;
-   border-radius: var(--radius-full);
+   padding: var(--space-1) var(--space-2);
+   border-radius: var(--radius-md);
    width: 100%;
    min-width: 60px;
-   transition: var(--transition);
+   transition: var(--transition-fast);
    cursor: default;
 }
-.view-name-input:read-only { pointer-events: none; user-select: none; }
+.view-name-input:read-only {
+   pointer-events: none;
+   user-select: none;
+}
 .view-name-input:not([readonly]),
 .view-name-input:focus {
    background: var(--bg-input);
-   border-color: var(--color-primary-light);
+   border-color: var(--color-primary);
    color: var(--color-text);
    outline: none;
-   box-shadow: 0 0 0 2px var(--color-primary-light);
    cursor: text;
    pointer-events: auto;
 }
@@ -530,87 +566,94 @@ input, select, textarea, button {
 .calculator-client {
    display: flex;
    align-items: center;
-   gap: 8px;
+   gap: var(--space-2);
    flex-wrap: wrap;
 }
 .client-type-toggle {
    display: flex;
    background: var(--bg-input);
-   border-radius: var(--radius-full);
-   padding: 3px;
+   border-radius: var(--radius-md);
+   padding: 2px;
 }
 .client-type-btn {
-   padding: 6px 12px;
+   padding: var(--space-1) var(--space-3);
    border: none;
    background: transparent;
-   border-radius: var(--radius-full);
+   border-radius: var(--radius-sm);
    font-size: 12px;
    font-weight: 500;
    color: var(--color-text-secondary);
    cursor: pointer;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
 .client-type-btn.active {
    background: var(--bg-card);
    color: var(--color-primary);
-   box-shadow: var(--shadow-soft);
+   box-shadow: var(--shadow-xs);
 }
 .client-select, .client-input {
-   padding: 8px 14px;
-   border: none;
-   background: var(--bg-input);
-   border-radius: var(--radius-full);
-   font-size: 13px;
+   padding: var(--space-2) var(--space-3);
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-md);
+   font-size: 12px;
    font-weight: 500;
    color: var(--color-text);
-   transition: var(--transition);
+   transition: var(--transition-fast);
+}
+.client-select:hover, .client-input:hover {
+   border-color: var(--color-border-strong);
+}
+.client-select:focus, .client-input:focus {
+   outline: none;
+   border-color: var(--color-primary);
 }
 .client-select {
    appearance: none;
-   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
    background-repeat: no-repeat;
-   background-position: right 10px center;
-   padding-right: 32px;
+   background-position: right 8px center;
+   padding-right: 28px;
    cursor: pointer;
 }
-.client-input { width: 120px; }
+.client-input { width: 110px; }
 .client-discount-input {
-   width: 70px;
-   padding: 8px 12px;
-   border: none;
-   background: var(--bg-input);
-   border-radius: var(--radius-full);
-   font-size: 13px;
+   width: 64px;
+   padding: var(--space-2) var(--space-2);
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-md);
+   font-size: 12px;
    font-weight: 500;
    color: var(--color-text);
    text-align: center;
 }
 .discount-badge {
-   padding: 6px 12px;
-   background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+   padding: var(--space-1) var(--space-3);
+   background: var(--color-success);
    color: white;
-   border-radius: var(--radius-full);
-   font-size: 12px;
-   font-weight: 700;
+   border-radius: var(--radius-md);
+   font-size: 11px;
+   font-weight: 600;
 }
 .client-row {
    display: flex;
    align-items: center;
-   gap: 8px;
-   margin-top: 8px;
+   gap: var(--space-2);
+   margin-top: var(--space-2);
 }
 
 /* 계산기 바디 & 파트 카드 */
 .calculator-body {
    flex: 1;
    overflow-y: auto;
-   padding: 20px 24px;
+   padding: var(--space-4) var(--space-5);
 }
 .part-card {
    background: var(--bg-input);
    border-radius: var(--radius-lg);
-   padding: 18px;
-   margin-bottom: 14px;
+   padding: var(--space-4);
+   margin-bottom: var(--space-3);
    display: flex;
    flex-direction: column;
 }
@@ -618,8 +661,8 @@ input, select, textarea, button {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   margin-bottom: 14px;
-   gap: 8px;
+   margin-bottom: var(--space-3);
+   gap: var(--space-2);
 }
 .part-name-wrapper {
    flex: 1;
@@ -627,23 +670,22 @@ input, select, textarea, button {
    align-items: center;
 }
 .part-name {
-   font-size: 15px;
-   font-weight: 700;
+   font-size: 14px;
+   font-weight: 600;
    color: var(--color-text);
    border: 1px solid transparent;
    background: transparent;
-   padding: 4px 12px;
-   border-radius: var(--radius-full);
+   padding: var(--space-1) var(--space-2);
+   border-radius: var(--radius-md);
    width: auto;
    min-width: 80px;
-   transition: var(--transition);
+   transition: var(--transition-fast);
    cursor: default;
 }
 .part-name:not([readonly]), .part-name:focus {
    background: var(--bg-card);
-   border-color: var(--color-primary-light);
+   border-color: var(--color-primary);
    outline: none;
-   box-shadow: 0 0 0 2px var(--color-primary-light);
    cursor: text;
 }
 .part-header-actions {
@@ -652,178 +694,195 @@ input, select, textarea, button {
    align-items: center;
 }
 .part-action-btn {
-   width: 28px;
-   height: 28px;
+   width: 26px;
+   height: 26px;
    border: none;
    background: transparent;
-   border-radius: var(--radius-full);
+   border-radius: var(--radius-sm);
    color: var(--color-text-light);
    cursor: pointer;
    display: flex;
    align-items: center;
    justify-content: center;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
-.part-action-btn:hover { background: var(--bg-hover); color: var(--color-text); }
-.part-action-btn.active { color: var(--color-primary); background: var(--color-primary-light); }
-.part-action-btn.danger:hover { background: var(--color-danger); color: white; }
+.part-action-btn:hover {
+   background: var(--bg-hover);
+   color: var(--color-text);
+}
+.part-action-btn.danger:hover {
+   background: var(--color-danger);
+   color: white;
+}
 
 .part-fields {
    display: flex;
-   gap: 8px;
-   margin-bottom: 12px;
+   gap: var(--space-2);
+   margin-bottom: var(--space-3);
 }
 .part-field { flex: 1; min-width: 0; }
-.part-field.small { flex: 0 0 90px; }
+.part-field.small { flex: 0 0 80px; }
 .part-field select, .part-field input {
    width: 100%;
-   padding: 10px 14px;
-   border: none;
+   padding: var(--space-2) var(--space-3);
+   border: 1px solid var(--color-border);
    background: var(--bg-card);
-   border-radius: var(--radius-full);
-   font-size: 13px;
+   border-radius: var(--radius-md);
+   font-size: 12px;
    font-weight: 500;
    color: var(--color-text);
-   box-shadow: var(--shadow-soft);
-   transition: var(--transition);
+   transition: var(--transition-fast);
+}
+.part-field select:hover, .part-field input:hover {
+   border-color: var(--color-border-strong);
+}
+.part-field select:focus, .part-field input:focus {
+   outline: none;
+   border-color: var(--color-primary);
 }
 .part-field select {
    appearance: none;
-   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
    background-repeat: no-repeat;
-   background-position: right 10px center;
-   padding-right: 28px;
+   background-position: right 8px center;
+   padding-right: 24px;
    cursor: pointer;
-}
-.part-field input:focus, .part-field select:focus {
-   outline: none;
-   box-shadow: 0 0 0 2px var(--color-primary-light), var(--shadow-soft);
 }
 
 .part-options {
    display: flex;
-   gap: 8px;
+   gap: var(--space-2);
    flex-wrap: wrap;
-   align-items: center; /* 수직 정렬 보정 */
-   margin-bottom: 12px;
+   align-items: center;
+   margin-bottom: var(--space-3);
 }
 
-/* [수정] 옵션 추가 버튼 뚱뚱해짐 방지 (줄바꿈 금지) */
 .btn-add-option {
-   display: flex;
+   display: inline-flex;
    align-items: center;
-   gap: 6px;
-   padding: 7px 12px;
-   border: none;
+   gap: var(--space-1);
+   padding: var(--space-1) var(--space-3);
+   border: 1px solid var(--color-border);
    background: var(--bg-card);
-   border-radius: var(--radius-full);
-   font-size: 12px;
+   border-radius: var(--radius-md);
+   font-size: 11px;
    font-weight: 500;
    color: var(--color-text-secondary);
    cursor: pointer;
-   box-shadow: var(--shadow-soft);
-   transition: var(--transition);
-   
-   white-space: nowrap; /* 줄바꿈 방지 */
+   transition: var(--transition-fast);
+   white-space: nowrap;
    flex-shrink: 0;
-   width: auto;
+}
+.btn-add-option svg {
+   width: 12px;
+   height: 12px;
+   flex-shrink: 0;
 }
 .btn-add-option:hover {
-   background: var(--color-primary-light);
+   border-color: var(--color-primary);
    color: var(--color-primary);
+   background: var(--color-primary-light);
 }
 
 .part-options-list {
    display: flex;
    flex-direction: column;
-   gap: 8px;
-   margin-bottom: 16px;
+   gap: var(--space-2);
+   margin-bottom: var(--space-3);
 }
 .option-item {
    display: flex;
    align-items: center;
-   gap: 8px;
-   padding: 8px 12px;
+   gap: var(--space-2);
+   padding: var(--space-2) var(--space-3);
    background: var(--bg-card);
-   border-radius: var(--radius-full);
-   box-shadow: var(--shadow-soft);
+   border: 1px solid var(--color-border);
+   border-radius: var(--radius-md);
 }
 .option-item label {
-   font-size: 12px;
+   font-size: 11px;
    font-weight: 500;
    color: var(--color-text-secondary);
    white-space: nowrap;
-   width: 40px;
+   width: 36px;
 }
 .option-preset-select {
-   width: 100px;
-   padding: 6px;
-   border: none;
-   background: var(--bg-input);
-   border-radius: var(--radius-full);
-   font-size: 12px;
-   margin-right: 4px;
+   width: 90px;
+   padding: var(--space-1) var(--space-2);
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-sm);
+   font-size: 11px;
    cursor: pointer;
 }
 .option-item input[type="text"], .option-item input[type="number"] {
    flex: 1;
-   padding: 6px 10px;
-   border: none;
-   background: var(--bg-input);
-   border-radius: var(--radius-full);
-   font-size: 12px;
+   padding: var(--space-1) var(--space-2);
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-sm);
+   font-size: 11px;
    font-weight: 500;
    color: var(--color-text);
 }
-.option-item input[type="number"] { width: 80px; text-align: right; flex: none; }
-.option-item input:focus { outline: none; background: var(--color-primary-light); }
+.option-item input[type="number"] { width: 70px; text-align: right; flex: none; }
+.option-item input:focus { outline: none; border-color: var(--color-primary); }
 .option-remove {
-   width: 20px;
-   height: 20px;
+   width: 18px;
+   height: 18px;
    border: none;
    background: transparent;
-   border-radius: 50%;
+   border-radius: var(--radius-sm);
    color: var(--color-text-light);
    cursor: pointer;
    display: flex;
    align-items: center;
    justify-content: center;
-   transition: var(--transition);
+   transition: var(--transition-fast);
    flex-shrink: 0;
 }
 .option-remove:hover { background: var(--color-danger); color: white; }
 
 .part-footer {
    margin-top: auto;
-   padding-top: 16px;
+   padding-top: var(--space-3);
    border-top: 1px solid var(--color-border);
    display: flex;
    align-items: center;
    justify-content: space-between;
    flex-wrap: wrap;
-   gap: 8px;
+   gap: var(--space-2);
 }
-.part-price-breakdown { font-size: 12px; color: var(--color-text-secondary); display: flex; flex-wrap: wrap; gap: 8px; }
-.part-total-price { font-size: 14px; font-weight: 700; color: var(--color-primary); }
+.part-price-breakdown {
+   font-size: 11px;
+   color: var(--color-text-secondary);
+   display: flex;
+   flex-wrap: wrap;
+   gap: var(--space-2);
+}
+.part-total-price {
+   font-size: 13px;
+   font-weight: 600;
+   color: var(--color-primary);
+}
 
-/* [수정] 파트 추가 버튼 뚱뚱해짐 방지 */
+/* 파트 추가 버튼 */
 .btn-add-part {
    display: flex;
    align-items: center;
    justify-content: center;
-   gap: 8px;
+   gap: var(--space-2);
    width: 100%;
-   padding: 14px;
-   border: 2px dashed var(--color-border);
+   padding: var(--space-3);
+   border: 1px dashed var(--color-border-strong);
    background: transparent;
    border-radius: var(--radius-lg);
-   font-size: 13px;
+   font-size: 12px;
    font-weight: 500;
    color: var(--color-text-light);
    cursor: pointer;
-   transition: var(--transition);
-   
-   white-space: nowrap; /* 줄바꿈 방지 */
+   transition: var(--transition-fast);
+   white-space: nowrap;
 }
 .btn-add-part:hover {
    border-color: var(--color-primary);
@@ -833,83 +892,80 @@ input, select, textarea, button {
 
 /* 뷰 추가 버튼 */
 .btn-add-view {
-   flex: 0 0 200px;
-   min-width: 200px;
+   flex: 0 0 180px;
+   min-width: 180px;
    display: flex;
    flex-direction: column;
    align-items: center;
    justify-content: center;
-   gap: 12px;
-   padding: 40px 0;
-   border: 2px dashed var(--color-border);
+   gap: var(--space-3);
+   padding: var(--space-8) 0;
+   border: 1px dashed var(--color-border-strong);
    background: transparent;
    border-radius: var(--radius-xl);
-   font-size: 14px;
+   font-size: 13px;
    font-weight: 500;
    color: var(--color-text-light);
    cursor: pointer;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
 .btn-add-view:hover {
    border-color: var(--color-primary);
    color: var(--color-primary);
    background: var(--color-primary-light);
 }
-
-/* [수정] 뷰 추가 버튼 아이콘 크기 제어 (너무 큼 해결) */
 .btn-add-view svg {
-   width: 24px;
-   height: 24px;
+   width: 20px;
+   height: 20px;
    stroke-width: 2;
-   opacity: 0.6;
-   transition: var(--transition);
+   opacity: 0.5;
+   transition: var(--transition-fast);
 }
 .btn-add-view:hover svg {
    opacity: 1;
-   color: var(--color-primary);
 }
 
 /* 계산기 푸터 */
 .calculator-footer {
-   padding: 18px 24px 20px;
+   padding: var(--space-4) var(--space-5);
    border-top: 1px solid var(--color-border);
 }
 .footer-title {
-   font-size: 15px;
-   font-weight: 700;
+   font-size: 13px;
+   font-weight: 600;
    color: var(--color-text);
-   margin-bottom: 12px;
+   margin-bottom: var(--space-3);
 }
 .summary-pills {
    display: flex;
-   gap: 8px;
+   gap: var(--space-2);
    flex-wrap: wrap;
    align-items: center;
 }
 .summary-pill {
-   padding: 8px 14px;
+   padding: var(--space-2) var(--space-3);
    background: var(--bg-input);
-   border-radius: var(--radius-full);
-   font-size: 12px;
+   border-radius: var(--radius-md);
+   font-size: 11px;
    font-weight: 500;
    color: var(--color-text-secondary);
    display: flex;
    align-items: center;
-   gap: 6px;
+   gap: var(--space-1);
 }
 .summary-pill.total {
    background: var(--color-text);
    color: white;
    width: 100%;
    justify-content: space-between;
-   margin-top: 12px;
-   padding: 12px 20px;
-   border-radius: var(--radius-full);
+   margin-top: var(--space-3);
+   padding: var(--space-3) var(--space-4);
+   border-radius: var(--radius-md);
 }
-.summary-pill .amount { font-weight: 700; color: var(--color-text); }
-.summary-pill.total .amount { color: white; font-size: 16px; }
+.summary-pill .amount { font-weight: 600; color: var(--color-text); }
+.summary-pill.total .amount { color: white; font-size: 14px; }
 .summary-pill.discount {
-   background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+   background: var(--color-success);
    color: white;
 }
 .summary-pill.discount .amount { color: white; }
@@ -922,20 +978,19 @@ input, select, textarea, button {
    height: 100%;
    color: var(--color-text-light);
    text-align: center;
-   padding: 40px;
+   padding: var(--space-8);
 }
 .empty-state-icon {
-   width: 80px;
-   height: 80px;
-   background: var(--bg-card);
+   width: 64px;
+   height: 64px;
+   background: var(--bg-input);
    border-radius: 50%;
    display: flex;
    align-items: center;
    justify-content: center;
-   margin-bottom: 20px;
-   box-shadow: var(--shadow-card);
+   margin-bottom: var(--space-4);
 }
-.empty-state h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.empty-state h3 { font-size: 14px; font-weight: 600; margin-bottom: var(--space-2); }
 
 /* =========================================
   6. 모달 및 폼
@@ -946,8 +1001,8 @@ input, select, textarea, button {
    left: 0;
    right: 0;
    bottom: 0;
-   background: rgba(0, 0, 0, 0.4);
-   backdrop-filter: blur(4px);
+   background: rgba(0, 0, 0, 0.5);
+   backdrop-filter: blur(2px);
    display: flex;
    align-items: center;
    justify-content: center;
@@ -961,106 +1016,105 @@ input, select, textarea, button {
 .modal {
    background: var(--bg-card);
    border-radius: var(--radius-xl);
-   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+   border: 1px solid var(--color-border);
    width: 90%;
-   max-width: 500px;
+   max-width: 480px;
    max-height: 80vh;
    display: flex;
    flex-direction: column;
-   transform: scale(0.95) translateY(10px);
+   transform: scale(0.98) translateY(8px);
    transition: var(--transition);
 }
 .modal-overlay.active .modal { transform: scale(1) translateY(0); }
-.modal-small { max-width: 380px; }
+.modal-small { max-width: 360px; }
 
 .modal-header {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   padding: 24px 28px 20px;
+   padding: var(--space-5) var(--space-5) var(--space-4);
    border-bottom: 1px solid var(--color-border);
 }
-.modal-header h2 { font-size: 18px; font-weight: 700; }
+.modal-header h2 { font-size: 15px; font-weight: 600; }
 
 .btn-close {
-   width: 36px;
-   height: 36px;
-   border: none;
-   background: var(--bg-input);
-   border-radius: var(--radius-full);
+   width: 28px;
+   height: 28px;
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-md);
    color: var(--color-text-secondary);
    cursor: pointer;
    display: flex;
    align-items: center;
    justify-content: center;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
-.btn-close:hover { background: var(--color-danger); color: white; }
+.btn-close:hover { border-color: var(--color-danger); background: var(--color-danger); color: white; }
 
 .modal-body {
    flex: 1;
    overflow-y: auto;
-   padding: 24px 28px;
+   padding: var(--space-5);
 }
 
-/* 태그 매니저 (모달 내) */
+/* 태그 매니저 */
 .tag-manager-list {
    list-style: none;
-   max-height: 300px;
+   max-height: 280px;
    overflow-y: auto;
-   background: transparent;
    border: 1px solid var(--color-border);
    border-radius: var(--radius-md);
-   margin-bottom: 12px;
+   margin-bottom: var(--space-3);
 }
 .tag-item {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   padding: 12px 16px;
-   border-bottom: 1px solid var(--bg-input);
+   padding: var(--space-3) var(--space-4);
+   border-bottom: 1px solid var(--color-border);
    background: var(--bg-card);
    cursor: pointer;
-   transition: background 0.2s;
+   transition: var(--transition-fast);
 }
 .tag-item:last-child { border-bottom: none; }
 .tag-item:hover { background: var(--bg-hover); }
 
-.tag-info-group { display: flex; align-items: center; gap: 12px; }
+.tag-info-group { display: flex; align-items: center; gap: var(--space-3); }
 .tag-check-icon {
-   width: 20px;
-   height: 20px;
+   width: 18px;
+   height: 18px;
    color: var(--color-primary);
    display: flex;
    align-items: center;
    justify-content: center;
    opacity: 0;
-   transition: opacity 0.2s;
+   transition: var(--transition-fast);
 }
 .tag-check-icon.visible { opacity: 1; }
 .tag-preview {
-   padding: 4px 12px;
-   font-size: 13px;
-   border-radius: 12px;
+   padding: var(--space-1) var(--space-3);
+   font-size: 12px;
+   border-radius: var(--radius-sm);
    color: white;
-   font-weight: bold;
-   white-space: nowrap; /* 줄바꿈 방지 */
+   font-weight: 600;
+   white-space: nowrap;
 }
-.tag-actions { opacity: 0.4; transition: opacity 0.2s; display: flex; gap: 4px; }
+.tag-actions { opacity: 0.3; transition: var(--transition-fast); display: flex; gap: var(--space-1); }
 .tag-item:hover .tag-actions { opacity: 1; }
 
 /* 신규 태그 생성 */
 .btn-create-tag-toggle {
    width: 100%;
-   padding: 10px;
+   padding: var(--space-2) var(--space-3);
    background: var(--bg-card);
-   border: 1px dashed var(--color-border);
-   border-radius: var(--radius-full);
+   border: 1px dashed var(--color-border-strong);
+   border-radius: var(--radius-md);
    color: var(--color-text-secondary);
-   font-size: 13px;
-   font-weight: 600;
+   font-size: 12px;
+   font-weight: 500;
    cursor: pointer;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
 .btn-create-tag-toggle:hover {
    border-color: var(--color-primary);
@@ -1070,24 +1124,19 @@ input, select, textarea, button {
 
 .new-tag-form-container {
    background: var(--bg-input);
-   padding: 12px;
+   padding: var(--space-3);
    border-radius: var(--radius-md);
-   margin-top: 10px;
-   animation: slideDown 0.2s ease-out;
-}
-@keyframes slideDown {
-   from { opacity: 0; transform: translateY(-10px); }
-   to { opacity: 1; transform: translateY(0); }
+   margin-top: var(--space-3);
 }
 .new-tag-form {
    display: flex;
-   gap: 8px;
-   margin-bottom: 10px;
+   gap: var(--space-2);
+   margin-bottom: var(--space-3);
    align-items: center;
 }
 .new-tag-form input[type="color"] {
-   width: 36px;
-   height: 36px;
+   width: 32px;
+   height: 32px;
    border: none;
    padding: 0;
    background: none;
@@ -1097,72 +1146,69 @@ input, select, textarea, button {
 .new-tag-form input[type="text"] {
    flex: 1;
    background: var(--bg-card);
-   border-radius: var(--radius-full);
+   border-radius: var(--radius-md);
 }
-.new-tag-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.new-tag-actions { display: flex; justify-content: flex-end; gap: var(--space-2); }
 
 /* 탭 및 설정 */
 .tabs {
    display: flex;
-   gap: 4px;
-   padding: 4px;
+   gap: 2px;
+   padding: 2px;
    background: var(--bg-input);
-   border-radius: var(--radius-full);
-   margin-bottom: 24px;
+   border-radius: var(--radius-md);
+   margin-bottom: var(--space-5);
 }
 .tab {
    flex: 1;
-   padding: 10px 16px;
+   padding: var(--space-2) var(--space-3);
    border: none;
    background: transparent;
-   border-radius: var(--radius-full);
-   font-size: 13px;
+   border-radius: var(--radius-sm);
+   font-size: 12px;
    font-weight: 500;
    color: var(--color-text-secondary);
    cursor: pointer;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
 .tab:hover { color: var(--color-text); }
-.tab.active { background: var(--bg-card); color: var(--color-primary); box-shadow: var(--shadow-soft); }
+.tab.active { background: var(--bg-card); color: var(--color-primary); box-shadow: var(--shadow-xs); }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* [수정] 설정 섹션 헤더 및 리스트 스타일 개선 */
+/* 설정 섹션 */
 .setting-section {
-   margin-bottom: 32px;
+   margin-bottom: var(--space-6);
+}
+.setting-section:last-child {
+   margin-bottom: 0;
 }
 
 .setting-header {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   
-   /* 하이어라키 및 여백 조정 */
-   margin-bottom: 20px;
-   font-size: 16px;
-   font-weight: 700;
+   margin-bottom: var(--space-4);
+   font-size: 13px;
+   font-weight: 600;
    color: var(--color-text);
-   letter-spacing: -0.5px;
 }
 
 .item-list {
    display: flex;
    flex-direction: column;
-   gap: 8px;
+   gap: var(--space-2);
 }
 
 .item-list-item {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   padding: 0 16px;
+   padding: 0 var(--space-4);
    background: var(--bg-input);
-   border-radius: var(--radius-full);
-   margin-bottom: 8px;
-   transition: var(--transition);
-   
-   /* 높이 및 굵어짐 방지 */
-   min-height: 52px;
+   border-radius: var(--radius-md);
+   transition: var(--transition-fast);
+   min-height: 48px;
 }
 .item-list-item:hover { background: var(--bg-hover); }
 
@@ -1171,67 +1217,73 @@ input, select, textarea, button {
    flex-direction: column;
    justify-content: center;
    overflow: hidden;
+   padding: var(--space-2) 0;
 }
 
 .item-list-item-name {
-   font-weight: 600;
-   font-size: 14px;
-   margin-bottom: 4px;
+   font-weight: 500;
+   font-size: 13px;
    white-space: nowrap;
    overflow: hidden;
    text-overflow: ellipsis;
 }
 .item-list-item-detail {
-   font-size: 12px;
+   font-size: 11px;
    color: var(--color-text-secondary);
-   font-weight: 400;
-   white-space: nowrap;
+   margin-top: 2px;
+}
+
+.item-list-empty {
+   text-align: center;
+   padding: var(--space-6) var(--space-4);
+   color: var(--color-text-light);
+   font-size: 12px;
 }
 
 /* =========================================
   7. 공통 버튼 및 유틸리티
   ========================================= */
 .btn-icon {
-   width: 28px;
-   height: 28px;
+   width: 26px;
+   height: 26px;
    border: none;
    background: transparent;
-   border-radius: var(--radius-full);
+   border-radius: var(--radius-sm);
    color: inherit;
    cursor: pointer;
    display: flex;
    align-items: center;
    justify-content: center;
-   transition: var(--transition);
-   opacity: 0.7;
+   transition: var(--transition-fast);
+   opacity: 0.6;
 }
 .btn-icon:hover { opacity: 1; background: rgba(0,0,0,0.05); }
-.btn-icon.danger:hover { background: var(--color-danger); color: white; }
+.btn-icon.danger:hover { background: var(--color-danger); color: white; opacity: 1; }
 
 .btn-pill {
-   padding: 8px 16px;
-   border: none;
-   background: var(--bg-input);
-   border-radius: var(--radius-full);
-   font-size: 13px;
+   padding: var(--space-2) var(--space-3);
+   border: 1px solid var(--color-border);
+   background: var(--bg-card);
+   border-radius: var(--radius-md);
+   font-size: 12px;
    font-weight: 500;
    color: var(--color-text-secondary);
    cursor: pointer;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
-.btn-pill:hover { background: var(--bg-hover); }
-.btn-pill.primary { background: var(--color-primary); color: white; }
-.btn-pill.primary:hover { background: var(--color-primary-hover); }
-.btn-pill.small { padding: 4px 10px; font-size: 11px; }
+.btn-pill:hover { border-color: var(--color-border-strong); background: var(--bg-hover); }
+.btn-pill.primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+.btn-pill.primary:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
+.btn-pill.small { padding: var(--space-1) var(--space-2); font-size: 11px; }
 
 .btn-primary, .btn-secondary, .btn-danger-block {
-   padding: 12px 24px;
+   padding: var(--space-3) var(--space-5);
    border: none;
-   border-radius: var(--radius-full);
-   font-size: 14px;
-   font-weight: 700;
+   border-radius: var(--radius-md);
+   font-size: 13px;
+   font-weight: 600;
    cursor: pointer;
-   transition: var(--transition);
+   transition: var(--transition-fast);
 }
 
 .btn-primary { background: var(--color-primary); color: white; }
@@ -1243,21 +1295,21 @@ input, select, textarea, button {
 .btn-danger-block {
    background: var(--color-danger);
    color: white;
-   width: calc(100% - 40px); /* 사이드바 패딩 고려 */
-   margin: 0 20px 8px;
+   width: calc(100% - var(--space-8));
+   margin: 0 var(--space-4) var(--space-2);
    font-size: 12px;
 }
-.btn-primary.small, .btn-secondary.small { padding: 8px 16px; font-size: 12px; }
+.btn-primary.small, .btn-secondary.small { padding: var(--space-2) var(--space-4); font-size: 12px; }
 
 /* 데이터 관리 */
-.data-actions { display: flex; flex-direction: column; gap: 20px; padding: 10px 4px; }
-.data-buttons { display: flex; gap: 12px; }
+.data-actions { display: flex; flex-direction: column; gap: var(--space-4); }
+.data-buttons { display: flex; gap: var(--space-3); }
 .data-buttons .btn-secondary {
    flex: 1;
    display: flex;
    align-items: center;
    justify-content: center;
-   height: 48px;
+   height: 44px;
    border: 1px solid var(--color-border);
    background: var(--bg-card);
 }
@@ -1268,98 +1320,93 @@ input, select, textarea, button {
 }
 
 /* =========================================
-  8. 누락된 스타일 보완
+  8. 폼 그룹 스타일
   ========================================= */
-
-/* 폼 그룹 스타일 */
 .form-group {
-   margin-bottom: 16px;
+   margin-bottom: var(--space-4);
 }
 .form-group label {
    display: block;
-   font-size: 12px;
+   font-size: 11px;
    font-weight: 600;
    color: var(--color-text-secondary);
-   margin-bottom: 6px;
+   margin-bottom: var(--space-2);
 }
 .form-group input,
 .form-group select,
 .form-group textarea {
    width: 100%;
-   padding: 10px 14px;
+   padding: var(--space-2) var(--space-3);
    border: 1px solid var(--color-border);
-   background: var(--bg-input);
-   border-radius: var(--radius-full);
+   background: var(--bg-card);
+   border-radius: var(--radius-md);
    font-size: 13px;
    color: var(--color-text);
-   transition: var(--transition);
+   transition: var(--transition-fast);
+}
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+   border-color: var(--color-border-strong);
 }
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
    outline: none;
    border-color: var(--color-primary);
-   box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 .form-actions {
    display: flex;
    justify-content: flex-end;
-   gap: 10px;
-   margin-top: 20px;
-   padding-top: 16px;
+   gap: var(--space-2);
+   margin-top: var(--space-5);
+   padding-top: var(--space-4);
    border-top: 1px solid var(--color-border);
 }
 
 /* 데이터 설명 텍스트 */
 .data-description {
-   font-size: 13px;
+   font-size: 12px;
    color: var(--color-text-secondary);
    line-height: 1.6;
-   margin-bottom: 16px;
+   margin-bottom: var(--space-4);
 }
 
 /* 태그 리스트 라벨 */
 .tag-list-label {
-   font-size: 12px;
+   font-size: 11px;
    font-weight: 600;
    color: var(--color-text-secondary);
-   margin-bottom: 8px;
-}
-
-/* 옵션 추가 버튼 내 SVG 크기 */
-.btn-add-option svg {
-   width: 14px;
-   height: 14px;
-   flex-shrink: 0;
+   margin-bottom: var(--space-2);
 }
 
 /* =========================================
   9. 파일 저장 (File System API) 스타일
   ========================================= */
 .file-storage-section {
-   padding: 16px 0;
+   padding: var(--space-3) 0;
 }
 
 .file-storage-status {
-   margin-bottom: 16px;
+   margin-bottom: var(--space-4);
 }
 
 .file-storage-status-badge {
    display: inline-flex;
    align-items: center;
-   gap: 8px;
-   padding: 8px 14px;
-   border-radius: var(--radius-full);
-   font-size: 13px;
+   gap: var(--space-2);
+   padding: var(--space-2) var(--space-3);
+   border-radius: var(--radius-md);
+   font-size: 12px;
    font-weight: 600;
-   margin-bottom: 12px;
+   margin-bottom: var(--space-3);
 }
 .file-storage-status-badge.active {
-   background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+   background: var(--color-success);
    color: white;
 }
 .file-storage-status-badge.warning {
-   background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+   background: #f59e0b;
    color: white;
 }
 .file-storage-status-badge.inactive {
@@ -1370,22 +1417,22 @@ input, select, textarea, button {
 .file-storage-info {
    background: var(--bg-input);
    border-radius: var(--radius-md);
-   padding: 14px 18px;
-   margin-top: 12px;
+   padding: var(--space-3) var(--space-4);
+   margin-top: var(--space-3);
 }
 .file-storage-info-row {
    display: flex;
    align-items: center;
-   gap: 8px;
-   font-size: 13px;
-   margin-bottom: 6px;
+   gap: var(--space-2);
+   font-size: 12px;
+   margin-bottom: var(--space-1);
 }
 .file-storage-info-row:last-child {
    margin-bottom: 0;
 }
 .file-storage-info-row .label {
    color: var(--color-text-secondary);
-   min-width: 80px;
+   min-width: 72px;
 }
 .file-storage-info-row .value {
    color: var(--color-text);
@@ -1394,14 +1441,14 @@ input, select, textarea, button {
 
 .file-storage-actions {
    display: flex;
-   gap: 10px;
-   margin-bottom: 12px;
+   gap: var(--space-2);
+   margin-bottom: var(--space-3);
 }
 .file-storage-actions .btn-secondary {
    display: flex;
    align-items: center;
    justify-content: center;
-   padding: 10px 18px;
+   padding: var(--space-2) var(--space-4);
    border: 1px solid var(--color-border);
    background: var(--bg-card);
 }
@@ -1412,8 +1459,7 @@ input, select, textarea, button {
 }
 
 .file-storage-note {
-   font-size: 12px;
+   font-size: 11px;
    color: var(--color-text-light);
    line-height: 1.5;
-   margin-top: 8px;
 }
