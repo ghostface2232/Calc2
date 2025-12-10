@@ -196,17 +196,19 @@ const Calculator = {
             <div class="part-card" data-part-id="${part.id}">
                 <div class="part-header">
                     <div class="part-name-wrapper">
-                        <input type="text" 
-                               class="part-name" 
-                               value="${part.name}" 
+                        <input type="text"
+                               class="part-name"
+                               id="part-name-${part.id}"
+                               value="${part.name}"
                                readonly
-                               onblur="this.readOnly = true;"
+                               style="pointer-events: none;"
+                               onblur="this.readOnly = true; this.style.pointerEvents='none';"
                                onchange="App.updatePart('${quoteId}', '${viewId}', '${part.id}', 'name', this.value)"
                                onkeypress="if(event.key === 'Enter') this.blur();">
                     </div>
 
                     <div class="part-header-actions">
-                        <button class="part-action-btn" onclick="const input = this.closest('.part-header').querySelector('.part-name'); input.readOnly = false; input.focus(); input.select();" title="이름 수정">
+                        <button class="part-action-btn" onclick="const input = document.getElementById('part-name-${part.id}'); input.readOnly = false; input.style.pointerEvents='auto'; input.focus(); input.select();" title="이름 수정">
                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>

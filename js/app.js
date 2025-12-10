@@ -451,13 +451,7 @@ importData(e) {
                                onchange="App.updateTagName('${tag.id}', this.value)"
                                onkeypress="if(event.key === 'Enter') { App.finishEditTag(); }">
                     </div>
-                    <div class="tag-actions">
-                        <button class="btn-icon" onclick="event.stopPropagation(); App.finishEditTag()" title="완료">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                        </button>
-                    </div>
+                    <div class="tag-actions"></div>
                     <div class="tag-color-picker" id="tag-color-picker-${tag.id}">
                         ${this.TAG_COLORS.map(c => `
                             <div class="color-swatch ${tag.color === c ? 'selected' : ''}"
@@ -465,6 +459,7 @@ importData(e) {
                                  onclick="event.stopPropagation(); App.setTagColor('${tag.id}', '${c}')"></div>
                         `).join('')}
                     </div>
+                    <button class="btn-finish-edit" onclick="event.stopPropagation(); App.finishEditTag()">수정 완료</button>
                 </li>
             `;
             }
@@ -1039,6 +1034,7 @@ importData(e) {
 
     updateFileStorageUI() {
         const status = FileStorageManager.getStatus();
+        const sectionEl = document.getElementById('file-storage-section');
         const statusEl = document.getElementById('file-storage-status');
         const noteEl = document.getElementById('file-storage-note');
         const selectBtn = document.getElementById('btn-select-folder');
@@ -1047,21 +1043,13 @@ importData(e) {
         if (!statusEl) return;
 
         if (!status.isSupported) {
-            statusEl.innerHTML = `
-                <div class="file-storage-status-badge warning">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    <span>미지원 브라우저</span>
-                </div>
-            `;
-            noteEl.textContent = 'Chrome, Edge 등 최신 브라우저에서만 사용 가능합니다.';
-            selectBtn.disabled = true;
-            disableBtn.style.display = 'none';
+            // 미지원 브라우저에서는 로컬 파일 저장 섹션 전체를 숨김
+            if (sectionEl) sectionEl.style.display = 'none';
             return;
         }
+
+        // 지원 브라우저에서는 섹션 표시
+        if (sectionEl) sectionEl.style.display = '';
 
         if (status.isEnabled && status.directoryName) {
             // 활성화됨
