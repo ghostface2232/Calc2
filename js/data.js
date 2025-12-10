@@ -1,4 +1,170 @@
 /**
+ * File System API 저장 관리 모듈
+ * 로컬 폴더에 데이터를 파일로 저장합니다.
+ */
+const FileStorageManager = {
+    directoryHandle: null,
+    fileName: 'gluckcalc-data.json',
+    isEnabled: false,
+    autoSave: true,
+
+    // File System API 지원 여부 확인
+    isSupported() {
+        return 'showDirectoryPicker' in window;
+    },
+
+    // 저장 폴더 선택
+    async selectDirectory() {
+        if (!this.isSupported()) {
+            alert('이 브라우저는 File System API를 지원하지 않습니다.\nChrome, Edge 등 최신 브라우저를 사용해주세요.');
+            return false;
+        }
+
+        try {
+            this.directoryHandle = await window.showDirectoryPicker({
+                mode: 'readwrite',
+                startIn: 'documents'
+            });
+
+            // 폴더 이름 저장 (UI 표시용)
+            DataManager.saveLocalSetting('fileStorageDir', this.directoryHandle.name);
+            DataManager.saveLocalSetting('fileStorageEnabled', true);
+            this.isEnabled = true;
+            this.autoSave = true;
+
+            // 기존 파일이 있으면 로드할지 물어봄
+            const existingFile = await this.checkExistingFile();
+            if (existingFile) {
+                if (confirm(`"${this.directoryHandle.name}" 폴더에서 기존 데이터를 발견했습니다.\n불러오시겠습니까?\n\n(취소를 누르면 현재 데이터로 덮어씁니다)`)) {
+                    await this.loadFromFile();
+                } else {
+                    await this.saveToFile();
+                }
+            } else {
+                // 새 파일 생성
+                await this.saveToFile();
+            }
+
+            return true;
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error('폴더 선택 오류:', err);
+                alert('폴더 선택 중 오류가 발생했습니다.');
+            }
+            return false;
+        }
+    },
+
+    // 기존 파일 존재 여부 확인
+    async checkExistingFile() {
+        if (!this.directoryHandle) return false;
+
+        try {
+            await this.directoryHandle.getFileHandle(this.fileName);
+            return true;
+        } catch {
+            return false;
+        }
+    },
+
+    // 파일에서 데이터 로드
+    async loadFromFile() {
+        if (!this.directoryHandle) return false;
+
+        try {
+            const fileHandle = await this.directoryHandle.getFileHandle(this.fileName);
+            const file = await fileHandle.getFile();
+            const content = await file.text();
+            const data = JSON.parse(content);
+
+            // localStorage에 동기화
+            if (data.quotes) localStorage.setItem(DataManager.KEYS.QUOTES, JSON.stringify(data.quotes));
+            if (data.materials) localStorage.setItem(DataManager.KEYS.MATERIALS, JSON.stringify(data.materials));
+            if (data.clients) localStorage.setItem(DataManager.KEYS.CLIENTS, JSON.stringify(data.clients));
+            if (data.optionPresets) localStorage.setItem(DataManager.KEYS.OPTION_PRESETS, JSON.stringify(data.optionPresets));
+            if (data.tags) localStorage.setItem(DataManager.KEYS.TAGS, JSON.stringify(data.tags));
+            if (data.settings) localStorage.setItem(DataManager.KEYS.SETTINGS, JSON.stringify(data.settings));
+
+            return true;
+        } catch (err) {
+            console.error('파일 로드 오류:', err);
+            return false;
+        }
+    },
+
+    // 파일에 데이터 저장
+    async saveToFile() {
+        if (!this.directoryHandle || !this.isEnabled) return false;
+
+        try {
+            const data = {
+                quotes: DataManager.getQuotes(),
+                materials: DataManager.getMaterials(),
+                clients: DataManager.getClients(),
+                optionPresets: DataManager.getOptionPresets(),
+                tags: DataManager.getTags(),
+                settings: DataManager.getSettings(),
+                lastSaved: new Date().toISOString()
+            };
+
+            const fileHandle = await this.directoryHandle.getFileHandle(this.fileName, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(JSON.stringify(data, null, 2));
+            await writable.close();
+
+            // 마지막 저장 시간 업데이트
+            DataManager.saveLocalSetting('fileStorageLastSaved', data.lastSaved);
+
+            return true;
+        } catch (err) {
+            console.error('파일 저장 오류:', err);
+            // 권한이 만료되었을 수 있음
+            if (err.name === 'NotAllowedError') {
+                this.isEnabled = false;
+                DataManager.saveLocalSetting('fileStorageEnabled', false);
+                alert('파일 저장 권한이 만료되었습니다.\n설정에서 폴더를 다시 선택해주세요.');
+            }
+            return false;
+        }
+    },
+
+    // 자동 저장 실행 (DataManager에서 호출)
+    async autoSaveIfEnabled() {
+        if (this.isEnabled && this.autoSave && this.directoryHandle) {
+            await this.saveToFile();
+        }
+    },
+
+    // 파일 저장 비활성화
+    disable() {
+        this.directoryHandle = null;
+        this.isEnabled = false;
+        DataManager.saveLocalSetting('fileStorageEnabled', false);
+        DataManager.saveLocalSetting('fileStorageDir', null);
+    },
+
+    // 상태 정보 가져오기
+    getStatus() {
+        return {
+            isSupported: this.isSupported(),
+            isEnabled: this.isEnabled,
+            directoryName: this.directoryHandle?.name || DataManager.getLocalSetting('fileStorageDir') || null,
+            lastSaved: DataManager.getLocalSetting('fileStorageLastSaved') || null
+        };
+    },
+
+    // 초기화 (페이지 로드 시)
+    init() {
+        // 이전 세션의 설정 복원 (단, directoryHandle은 복원 불가 - 보안상 사용자가 다시 선택해야 함)
+        const wasEnabled = DataManager.getLocalSetting('fileStorageEnabled');
+        if (wasEnabled) {
+            // 이전에 활성화되어 있었음을 표시하되, 실제 저장은 사용자가 다시 폴더를 선택해야 함
+            this.isEnabled = false; // handle이 없으므로 실제로는 비활성
+        }
+    }
+};
+
+/**
  * 데이터 관리 모듈
  * LocalStorage를 사용하여 데이터를 저장하고 관리합니다.
  */
@@ -25,37 +191,6 @@ const DataManager = {
         }
     },
 
-    getQuotes() {
-        return this._safeLoad(this.KEYS.QUOTES, []);
-    },
-
-    getMaterials() {
-        return this._safeLoad(this.KEYS.MATERIALS, this.DEFAULTS.materials);
-    },
-
-    getClients() {
-        return this._safeLoad(this.KEYS.CLIENTS, []);
-    },
-
-    getOptionPresets() {
-        return this._safeLoad(this.KEYS.OPTION_PRESETS, []);
-    },
-
-    getSettings() {
-        return this._safeLoad(this.KEYS.SETTINGS, this.DEFAULTS.settings);
-    },
-    
-    getLocalSetting(key) {
-        const localData = this._safeLoad(this.KEYS.LOCAL_SETTINGS, {});
-        return localData[key];
-    },
-
-    saveLocalSetting(key, value) {
-        const localData = this._safeLoad(this.KEYS.LOCAL_SETTINGS, {});
-        localData[key] = value;
-        localStorage.setItem(this.KEYS.LOCAL_SETTINGS, JSON.stringify(localData));
-    },
-
     // 초기 데이터
     DEFAULTS: {
         materials: [
@@ -78,15 +213,18 @@ const DataManager = {
 
     init() {
         if (!localStorage.getItem(this.KEYS.MATERIALS)) {
-            this.saveMaterials(this.DEFAULTS.materials);
+            // 초기화 시에는 파일 저장 없이 localStorage만 저장
+            localStorage.setItem(this.KEYS.MATERIALS, JSON.stringify(this.DEFAULTS.materials));
         }
         if (!localStorage.getItem(this.KEYS.SETTINGS)) {
-            this.saveSettings(this.DEFAULTS.settings);
+            localStorage.setItem(this.KEYS.SETTINGS, JSON.stringify(this.DEFAULTS.settings));
         }
         // 초기 로컬 설정이 없으면 기본값 설정 (필요시)
         if (!localStorage.getItem(this.KEYS.LOCAL_SETTINGS)) {
             this.saveLocalSetting('sidebarWidth', 280);
         }
+        // File System API 초기화
+        FileStorageManager.init();
     },
 
     // === 견적 관리 ===
@@ -108,10 +246,12 @@ const DataManager = {
             quotes.push(quote);
         }
         localStorage.setItem(this.KEYS.QUOTES, JSON.stringify(quotes));
+        FileStorageManager.autoSaveIfEnabled();
     },
 
     saveQuotes(quotes) {
         localStorage.setItem(this.KEYS.QUOTES, JSON.stringify(quotes));
+        FileStorageManager.autoSaveIfEnabled();
     },
 
     createQuote(name) {
@@ -246,11 +386,18 @@ const DataManager = {
             materials.push(material);
         }
         localStorage.setItem(this.KEYS.MATERIALS, JSON.stringify(materials));
+        FileStorageManager.autoSaveIfEnabled();
+    },
+
+    saveMaterials(materials) {
+        localStorage.setItem(this.KEYS.MATERIALS, JSON.stringify(materials));
+        FileStorageManager.autoSaveIfEnabled();
     },
 
     deleteMaterial(id) {
         const materials = this.getMaterials().filter(m => m.id !== id);
         localStorage.setItem(this.KEYS.MATERIALS, JSON.stringify(materials));
+        FileStorageManager.autoSaveIfEnabled();
     },
 
     // === 고객사 관리 ===
@@ -272,11 +419,13 @@ const DataManager = {
             clients.push(client);
         }
         localStorage.setItem(this.KEYS.CLIENTS, JSON.stringify(clients));
+        FileStorageManager.autoSaveIfEnabled();
     },
 
     deleteClient(id) {
         const clients = this.getClients().filter(c => c.id !== id);
         localStorage.setItem(this.KEYS.CLIENTS, JSON.stringify(clients));
+        FileStorageManager.autoSaveIfEnabled();
     },
 
     // === 옵션 프리셋 관리 ===
@@ -298,11 +447,13 @@ const DataManager = {
             presets.push(preset);
         }
         localStorage.setItem(this.KEYS.OPTION_PRESETS, JSON.stringify(presets));
+        FileStorageManager.autoSaveIfEnabled();
     },
 
     deleteOptionPreset(id) {
         const presets = this.getOptionPresets().filter(p => p.id !== id);
         localStorage.setItem(this.KEYS.OPTION_PRESETS, JSON.stringify(presets));
+        FileStorageManager.autoSaveIfEnabled();
     },
 
     // === 태그 관리 ===
@@ -324,13 +475,14 @@ const DataManager = {
             tags.push(tag);
         }
         localStorage.setItem(this.KEYS.TAGS, JSON.stringify(tags));
+        FileStorageManager.autoSaveIfEnabled();
         return tag;
     },
 
     deleteTag(id) {
         let tags = this.getTags().filter(t => t.id !== id);
         localStorage.setItem(this.KEYS.TAGS, JSON.stringify(tags));
-        
+
         // 삭제된 태그를 사용하는 견적들의 tagId 제거
         let quotes = this.getQuotes();
         let modified = false;
@@ -341,6 +493,7 @@ const DataManager = {
             }
         });
         if (modified) this.saveQuotes(quotes);
+        else FileStorageManager.autoSaveIfEnabled(); // quotes 저장이 없었을 경우 직접 호출
     },
 
     // === 설정 관리 ===
@@ -350,6 +503,7 @@ const DataManager = {
 
     saveSettings(settings) {
         localStorage.setItem(this.KEYS.SETTINGS, JSON.stringify(settings));
+        FileStorageManager.autoSaveIfEnabled();
     },
 
     // [수정 4] 로컬 전용 설정 (Export 제외) 관리 메서드 추가

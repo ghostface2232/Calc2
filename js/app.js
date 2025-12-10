@@ -17,7 +17,7 @@ const App = {
         TabManager.init();
         this.initSidebar();
         this.bindEvents();
-        
+
         // 데이터 로드 및 초기 활성 견적 설정
         const quotes = DataManager.getQuotes();
         if (quotes.length > 0 && !this.state.activeQuoteId) {
@@ -26,6 +26,7 @@ const App = {
 
         this.renderAll();
         this.updateHistoryButtons();
+        this.updateFileStorageUI();
     },
 
     // UI 전체 업데이트
@@ -100,7 +101,10 @@ const App = {
 
     bindEvents() {
         document.getElementById('btn-new-quote').addEventListener('click', () => this.createNewQuote());
-        document.getElementById('btn-settings').addEventListener('click', () => Modal.open('modal-settings'));
+        document.getElementById('btn-settings').addEventListener('click', () => {
+            this.updateFileStorageUI(); // 설정 모달 열 때마다 상태 갱신
+            Modal.open('modal-settings');
+        });
         document.getElementById('btn-add-material').addEventListener('click', () => this.openMaterialModal());
         document.getElementById('btn-add-client').addEventListener('click', () => this.openClientModal());
         document.getElementById('btn-add-option-preset').addEventListener('click', () => this.openOptionPresetModal());
@@ -881,6 +885,118 @@ importData(e) {
         if (!confirm('이 옵션을 삭제하시겠습니까?')) return;
         DataManager.deleteOptionPreset(presetId);
         this.renderOptionPresetList();
+    },
+
+    // === File System API 관련 ===
+    async selectStorageFolder() {
+        const success = await FileStorageManager.selectDirectory();
+        if (success) {
+            this.updateFileStorageUI();
+            this.renderAll(); // 데이터가 변경되었을 수 있으므로 전체 갱신
+        }
+    },
+
+    disableFileStorage() {
+        if (!confirm('파일 저장을 해제하시겠습니까?\n\n기존에 저장된 파일은 삭제되지 않지만,\n앞으로의 변경사항은 브라우저에만 저장됩니다.')) return;
+
+        FileStorageManager.disable();
+        this.updateFileStorageUI();
+    },
+
+    updateFileStorageUI() {
+        const status = FileStorageManager.getStatus();
+        const statusEl = document.getElementById('file-storage-status');
+        const noteEl = document.getElementById('file-storage-note');
+        const selectBtn = document.getElementById('btn-select-folder');
+        const disableBtn = document.getElementById('btn-disable-file-storage');
+
+        if (!statusEl) return;
+
+        if (!status.isSupported) {
+            statusEl.innerHTML = `
+                <div class="file-storage-status-badge warning">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>미지원 브라우저</span>
+                </div>
+            `;
+            noteEl.textContent = 'Chrome, Edge 등 최신 브라우저에서만 사용 가능합니다.';
+            selectBtn.disabled = true;
+            disableBtn.style.display = 'none';
+            return;
+        }
+
+        if (status.isEnabled && status.directoryName) {
+            // 활성화됨
+            const lastSaved = status.lastSaved
+                ? new Date(status.lastSaved).toLocaleString('ko-KR')
+                : '아직 저장되지 않음';
+
+            statusEl.innerHTML = `
+                <div class="file-storage-status-badge active">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span>활성화됨</span>
+                </div>
+                <div class="file-storage-info">
+                    <div class="file-storage-info-row">
+                        <span class="label">저장 폴더:</span>
+                        <span class="value">${status.directoryName}</span>
+                    </div>
+                    <div class="file-storage-info-row">
+                        <span class="label">마지막 저장:</span>
+                        <span class="value">${lastSaved}</span>
+                    </div>
+                </div>
+            `;
+            noteEl.textContent = '';
+            selectBtn.textContent = '폴더 변경';
+            disableBtn.style.display = 'flex';
+        } else if (status.directoryName) {
+            // 이전에 활성화되었지만 현재 연결 필요
+            statusEl.innerHTML = `
+                <div class="file-storage-status-badge warning">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>재연결 필요</span>
+                </div>
+            `;
+            noteEl.textContent = `이전에 "${status.directoryName}" 폴더를 사용했습니다. 보안상 폴더를 다시 선택해주세요.`;
+            selectBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                폴더 다시 연결
+            `;
+            disableBtn.style.display = 'flex';
+        } else {
+            // 비활성화됨
+            statusEl.innerHTML = `
+                <div class="file-storage-status-badge inactive">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    <span>비활성화</span>
+                </div>
+            `;
+            noteEl.textContent = '현재 데이터는 브라우저 localStorage에만 저장됩니다.';
+            selectBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                저장 폴더 선택
+            `;
+            disableBtn.style.display = 'none';
+        }
     }
 };
 
