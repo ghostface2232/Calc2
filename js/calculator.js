@@ -120,10 +120,28 @@ const Calculator = {
                 </div>
                 
                 <div class="calculator-body">
-                    ${view.parts && view.parts.length > 0 ? 
+                    ${view.parts && view.parts.length > 5 ? `
+                        <div class="parts-summary-card" onclick="App.openPartsModal('${quote.id}', '${view.id}')">
+                            <div class="parts-summary-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                                </svg>
+                            </div>
+                            <div class="parts-summary-info">
+                                <span class="parts-summary-count">파트 수: ${view.parts.length}개</span>
+                                <span class="parts-summary-hint">클릭하여 전체 파트 보기</span>
+                            </div>
+                            <svg class="parts-summary-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </div>
+                    ` : view.parts && view.parts.length > 0 ?
                         view.parts.map((part, i) => this.renderPart(quote.id, view.id, part, i)).join('') : ''
                     }
-                    
+
                     <button class="btn-add-part" onclick="App.addPart('${quote.id}', '${view.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -265,8 +283,8 @@ const Calculator = {
                             return `
                             <div class="option-item">
                                 <label>${opt.type === 'postProcessing' ? '후가공' : '옵션'}</label>
-                                
-                                <select class="option-preset-select" 
+
+                                <select class="option-preset-select"
                                         onchange="App.applyOptionPreset('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, this.value); this.value='';">
                                     <option value="">불러오기...</option>
                                     ${availablePresets.map(p => `
@@ -274,17 +292,23 @@ const Calculator = {
                                     `).join('')}
                                 </select>
 
-                                <input type="text" 
-                                       value="${opt.name || ''}" 
+                                <input type="text"
+                                       value="${opt.name || ''}"
                                        placeholder="항목명"
                                        onchange="App.updateOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, 'name', this.value)">
-                                
-                                <input type="number" 
-                                       value="${opt.price || ''}" 
+
+                                <select class="option-price-type-select"
+                                        onchange="App.updateOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, 'priceType', this.value)">
+                                    <option value="fixed" ${opt.priceType !== 'percent' ? 'selected' : ''}>+원</option>
+                                    <option value="percent" ${opt.priceType === 'percent' ? 'selected' : ''}>+%</option>
+                                </select>
+
+                                <input type="number"
+                                       value="${opt.price || ''}"
                                        placeholder="${opt.priceType === 'percent' ? '%' : '원'}"
                                        min="0"
                                        onchange="App.updateOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, 'price', parseInt(this.value) || 0)">
-                                       
+
                                 <button class="option-remove" onclick="App.removeOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex})">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
