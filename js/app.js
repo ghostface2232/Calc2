@@ -408,7 +408,7 @@ importData(e) {
         Modal.open('modal-tag-manager');
     },
 
-    renderTagListInModal() {
+    renderTagListInModal(editingTagId = null) {
         const listEl = document.getElementById('tag-manager-list');
         if (!listEl) return;
 
@@ -434,23 +434,59 @@ importData(e) {
 
         const tagItems = tags.map(tag => {
             const isSelected = quote && quote.tagId === tag.id;
+            const isEditing = editingTagId === tag.id;
+
+            if (isEditing) {
+                return `
+                <li class="tag-item tag-item-editing">
+                    <div class="tag-info-group">
+                        <div class="tag-check-icon ${isSelected ? 'visible' : ''}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="tag-color-btn" style="background-color: ${tag.color}" onclick="event.stopPropagation(); App.toggleTagColorPicker('${tag.id}')"></div>
+                        <input type="text" class="tag-name-input" id="tag-edit-input-${tag.id}" value="${tag.name}" maxlength="10"
+                               onclick="event.stopPropagation();"
+                               onchange="App.updateTagName('${tag.id}', this.value)"
+                               onkeypress="if(event.key === 'Enter') { App.finishEditTag(); }">
+                    </div>
+                    <div class="tag-actions">
+                        <button class="btn-icon" onclick="event.stopPropagation(); App.finishEditTag()" title="완료">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="tag-color-picker" id="tag-color-picker-${tag.id}">
+                        ${this.TAG_COLORS.map(c => `
+                            <div class="color-swatch ${tag.color === c ? 'selected' : ''}"
+                                 style="background-color: ${c}"
+                                 onclick="event.stopPropagation(); App.setTagColor('${tag.id}', '${c}')"></div>
+                        `).join('')}
+                    </div>
+                </li>
+            `;
+            }
 
             return `
-            <li class="tag-item">
-                <div class="tag-info-group" onclick="App.assignTag('${tag.id}')">
+            <li class="tag-item" onclick="App.assignTag('${tag.id}')">
+                <div class="tag-info-group">
                     <div class="tag-check-icon ${isSelected ? 'visible' : ''}">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                     </div>
-                    <div class="tag-color-btn" style="background-color: ${tag.color}" onclick="event.stopPropagation(); App.toggleTagColorPicker('${tag.id}')"></div>
-                    <input type="text" class="tag-name-input" value="${tag.name}" maxlength="10"
-                           onclick="event.stopPropagation();"
-                           onchange="App.updateTagName('${tag.id}', this.value)"
-                           onkeypress="if(event.key === 'Enter') this.blur();">
+                    <div class="tag-preview" style="background-color: ${tag.color}">${tag.name}</div>
                 </div>
 
                 <div class="tag-actions">
+                    <button class="btn-icon" onclick="event.stopPropagation(); App.startEditTag('${tag.id}')" title="수정">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
                     <button class="btn-icon danger" onclick="event.stopPropagation(); App.deleteTag('${tag.id}')" title="삭제">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -458,17 +494,29 @@ importData(e) {
                         </svg>
                     </button>
                 </div>
-                <div class="tag-color-picker" id="tag-color-picker-${tag.id}" style="display: none;">
-                    ${this.TAG_COLORS.map(c => `
-                        <div class="color-swatch ${tag.color === c ? 'selected' : ''}"
-                             style="background-color: ${c}"
-                             onclick="event.stopPropagation(); App.setTagColor('${tag.id}', '${c}')"></div>
-                    `).join('')}
-                </div>
             </li>
         `}).join('');
 
         listEl.innerHTML = noTagItem + tagItems;
+
+        // 수정 모드일 때 인풋에 포커스
+        if (editingTagId) {
+            const input = document.getElementById(`tag-edit-input-${editingTagId}`);
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }
+    },
+
+    startEditTag(tagId) {
+        this.state.editingTagId = tagId;
+        this.renderTagListInModal(tagId);
+    },
+
+    finishEditTag() {
+        this.state.editingTagId = null;
+        this.renderTagListInModal();
     },
 
 
@@ -608,7 +656,7 @@ importData(e) {
         if (!tag) return;
         tag.color = color;
         DataManager.saveTag(tag);
-        this.renderTagListInModal();
+        this.renderTagListInModal(this.state.editingTagId);
         this.updateSidebarTagFilter();
         this.renderQuoteList();
     },
@@ -829,11 +877,18 @@ importData(e) {
         if (!view) return;
         const part = view.parts.find(p => p.id === partId);
         if (!part || !part.options || !part.options[optionIndex]) return;
-        const preset = DataManager.getOptionPreset(presetId);
-        if (preset) {
-            part.options[optionIndex].name = preset.name;
-            part.options[optionIndex].price = preset.price;
-            part.options[optionIndex].priceType = preset.priceType;
+
+        if (presetId) {
+            const preset = DataManager.getOptionPreset(presetId);
+            if (preset) {
+                part.options[optionIndex].presetId = presetId;
+                part.options[optionIndex].name = preset.name;
+                part.options[optionIndex].price = preset.price;
+                part.options[optionIndex].priceType = preset.priceType;
+            }
+        } else {
+            // 직접 입력 선택 시 presetId 제거
+            delete part.options[optionIndex].presetId;
         }
         DataManager.saveQuote(quote);
         this.renderCalculator();
