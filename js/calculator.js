@@ -282,39 +282,41 @@ const Calculator = {
                             const availablePresets = optionPresets.filter(p => p.type === opt.type);
                             return `
                             <div class="option-item">
-                                <label>${opt.type === 'postProcessing' ? '후가공' : '옵션'}</label>
+                                <div class="option-item-row">
+                                    <label>${opt.type === 'postProcessing' ? '후가공' : '옵션'}</label>
 
-                                <select class="option-preset-select"
-                                        onchange="App.applyOptionPreset('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, this.value); this.value='';">
-                                    <option value="">불러오기...</option>
-                                    ${availablePresets.map(p => `
-                                        <option value="${p.id}">${p.name} (${p.priceType === 'percent' ? p.price + '%' : p.price + '원'})</option>
-                                    `).join('')}
-                                </select>
+                                    <select class="option-preset-select"
+                                            onchange="App.applyOptionPreset('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, this.value); this.value='';">
+                                        <option value="">프리셋</option>
+                                        ${availablePresets.map(p => `
+                                            <option value="${p.id}">${p.name} (${p.priceType === 'percent' ? p.price + '%' : p.price + '원'})</option>
+                                        `).join('')}
+                                    </select>
 
-                                <input type="text"
-                                       value="${opt.name || ''}"
-                                       placeholder="항목명"
-                                       onchange="App.updateOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, 'name', this.value)">
+                                    <input type="text" class="option-name-input"
+                                           value="${opt.name || ''}"
+                                           placeholder="항목명"
+                                           onchange="App.updateOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, 'name', this.value)">
 
-                                <select class="option-price-type-select"
-                                        onchange="App.updateOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, 'priceType', this.value)">
-                                    <option value="fixed" ${opt.priceType !== 'percent' ? 'selected' : ''}>+원</option>
-                                    <option value="percent" ${opt.priceType === 'percent' ? 'selected' : ''}>+%</option>
-                                </select>
+                                    <input type="number" class="option-price-input"
+                                           value="${opt.price || ''}"
+                                           placeholder="${opt.priceType === 'percent' ? '%' : '원'}"
+                                           min="0"
+                                           onchange="App.updateOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, 'price', parseInt(this.value) || 0)">
 
-                                <input type="number"
-                                       value="${opt.price || ''}"
-                                       placeholder="${opt.priceType === 'percent' ? '%' : '원'}"
-                                       min="0"
-                                       onchange="App.updateOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, 'price', parseInt(this.value) || 0)">
+                                    <select class="option-price-type-select"
+                                            onchange="App.updateOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex}, 'priceType', this.value)">
+                                        <option value="fixed" ${opt.priceType !== 'percent' ? 'selected' : ''}>원</option>
+                                        <option value="percent" ${opt.priceType === 'percent' ? 'selected' : ''}>%</option>
+                                    </select>
 
-                                <button class="option-remove" onclick="App.removeOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex})">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                    </svg>
-                                </button>
+                                    <button class="option-remove" onclick="App.removeOption('${quoteId}', '${viewId}', '${part.id}', ${optIndex})">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         `}).join('')}
                     </div>
