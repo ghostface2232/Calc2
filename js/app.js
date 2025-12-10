@@ -645,6 +645,24 @@ importData(e) {
         }
     },
 
+    // 파트 목록 모달 열기 (파트 수 5개 초과 시)
+    openPartsModal(quoteId, viewId) {
+        const quote = DataManager.getQuote(quoteId);
+        if (!quote) return;
+        const view = quote.views.find(v => v.id === viewId);
+        if (!view) return;
+
+        const bodyEl = document.getElementById('modal-parts-list-body');
+        if (!bodyEl) return;
+
+        // 파트 목록 렌더링
+        bodyEl.innerHTML = view.parts.map((part, i) =>
+            Calculator.renderPart(quoteId, viewId, part, i)
+        ).join('');
+
+        Modal.open('modal-parts-list');
+    },
+
     addPart(quoteId, viewId) {
         DataManager.captureState(this.state.activeQuoteId);
         const quote = DataManager.getQuote(quoteId);
